@@ -47,7 +47,7 @@ However, some errors will still remain.
 
 This system could potentially handle a century’s worth of newspapers,
 covering hundreds of thousands of pages.  For demonstration purposes,
-I mocked up the data for just 10 pages from The Wizard of Oz, a text
+I mocked up the data for a few pages from *The Wizard of Oz,* a text
 on which the copyright has expired.
 
 I used AWS Textract to perform the OCR.  One form of output from AWS
@@ -113,7 +113,7 @@ consideration in the data model.
 
 ## Data model
 
-In some APIs, an update means that the previous contents of a record
+In some APIs, an **update** means that the previous contents of a record
 are simply overwritten, and no record of the previous value is
 maintained.
 
