@@ -1,0 +1,125 @@
+// const textract = new AWS.Textract();
+
+
+
+// const textractSnsRoleArn = process.env.TEXTRACT_SNS_ROLE_ARN
+// const textractSnsArn = process.env.TEXTRACT_SNS_ARN
+
+
+const snsFullAccessRoleName = process.env.SNS_FULL_ACCESS_ROLE_NAME
+
+const snsFullAccessRoleName = process.env.SNS_FULL_ACCESS_ROLE_NAME
+
+
+// const textractSnsArn = 'arn:aws:sns:us-east-1:424780530116:tornado_warning'
+
+  console.log(event.headers.userId)
+
+  console.log('------------x')
+  console.log(textractSnsRoleArn)
+  console.log(textractSnsArn)
+  console.log('------------x')
+
+  console.log(snsFullAccessRoleName)
+
+
+/*
+
+  var params = {
+    Message: 'Winkle', 
+    Subject: 'Wonkle',
+    TopicArn: 'arn:aws:sns:us-east-1:424780530116:textractDoneTopic-dev'
+  };
+
+
+  sns.publish(params).promise()
+*/
+
+/*
+
+  const createdAt = new Date().toISOString()
+  const message = 'This notification was generated at ' + createdAt
+
+  var params = {
+    Message: message,
+    Subject: 'Test message from local deployment',
+    TopicArn: 'arn:aws:sns:us-east-1:424780530116:tornado_warning'
+  };
+
+  const response = sns.publish(params).promise()
+  console.log(JSON.stringify(response))
+
+*/
+
+  console.log('Alpha _________________________________')
+
+  textract.startDocumentAnalysis(params, function(err, data) {
+    if (err) console.log(err, err.stack); // an error occurred
+    else     console.log(data);           // successful response
+  });
+
+
+  console.log('Beta _________________________________')
+*/
+
+//    MaxResults: 'NUMBER_VALUE',
+// NextToken: 'STRING_VALUE'
+
+*/
+
+// The RoleArn is the ARN of an IAM role that gives Amazon Textract publishing permissions to the Amazon SNS topic.
+
+
+/*
+    NotificationChannel: {
+      RoleArn: 'arn:aws:iam::19250632xxxx:role/AWSTextractRole',
+      SNSTopicArn: 'arn:aws:sns:us-east-1:19250632xxxx:AmazonTextractTopic1562662993926'
+    }
+*/
+
+
+handler
+  .use(cors())
+  .use(seanMiddy())
+
+
+
+const sns = new AWS.SNS()
+
+
+  // console.log(JSON.stringify(textractOutput))
+
+  // const response = textract.startDocumentAnalysis(params).promise()
+  // console.log(JSON.stringify(response))
+
+
+
+
+
+
+
+/*
+  console.log('Here is what we are going to publish:')
+  console.log(params)
+
+  console.log('We are about to publish the message.')
+
+  console.log(JSON.stringify(response))
+
+  console.log('We just published the message')
+
+  // console.log(JSON.stringify(record))
+  //console.log(record)
+
+
+
+// import { SNSEvent, SNSHandler, S3EventRecord } from 'aws-lambda'
+
+  // for (const snsRecord of event.Records) {
+    // const s3EventStr = snsRecord.Sns.Message
+    // console.log('Processing S3 event', s3EventStr)
+  // }
+*/
+
+
+

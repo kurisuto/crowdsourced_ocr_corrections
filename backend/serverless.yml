@@ -1,0 +1,515 @@
+service:
+  name: coc2
+
+plugins:
+  - serverless-webpack
+  - serverless-iam-roles-per-function
+  - serverless-dynamodb-local
+  - serverless-offline
+  - serverless-aws-documentation
+  - serverless-reqvalidator-plugin
+
+# package:
+#   individually: true
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+
+  tracing:
+    lambda: true
+    apiGateway: true
+
+  environment:
+    TABLE_PAGE: COC-Page-${self:provider.stage}
+    TABLE_LINE: COC-Line-${self:provider.stage}
+    TABLE_EDIT: COC-Edit-${self:provider.stage}
+    S3_BUCKET_PAGE_UPLOAD: coc-page-upload-424780530116-${self:provider.stage}
+    S3_BUCKET_OCR_OUTPUT: coc-ocr-output-424780530116-${self:provider.stage}
+    S3_BUCKET_LINE_IMAGES: coc-line-images-424780530116-${self:provider.stage}
+    SIGNED_URL_EXPIRATION: 300
+    AWS_XRAY_CONTEXT_MISSING: 'LOG_ERROR'
+
+functions:
+
+  Auth:
+    handler: src/lambda/auth/auth0Authorizer.handler
+
+  GetLine:
+    handler: src/lambda/http/getLine.handler
+    events:
+      - http:
+          method: get
+          path: line
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+
+  SubmitLine:
+    handler: src/lambda/http/submitLine.handler
+    events:
+      - http:
+          method: post
+          path: line
+          cors: true
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Submit an edited line
+            description: Submit an edited line
+            requestModels:
+              'application/json': SubmitLineRequest
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+
+  UpdateLineEdit:
+    handler: src/lambda/http/updateLineEdit.handler
+    events:
+      - http:
+          method: patch
+          path: line/{lineEditId}
+          cors: true
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Update line edit item
+            description: Update line edit item
+            requestModels:
+              'application/json': UpdateLineEditRequest
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+
+  DeleteLineEdit:
+    handler: src/lambda/http/deleteLineEdit.handler
+    events:
+      - http:
+          method: delete
+          path: line/{lineEditId}
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+
+
+  GenerateUploadUrl:
+    handler: src/lambda/http/generateUploadUrl.handler
+    events:
+      - http:
+          method: post
+          path: pageupload
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+
+
+  GetAllPages:
+    handler: src/lambda/http/getAllPages.handler
+    events:
+      - http:
+          method: get
+          path: getallpages
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+
+
+  RecognizePage:
+    handler: src/lambda/http/recognizePage.handler
+    events:
+      - http:
+          method: get
+          path: recognizepage
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+
+  RecognizePageManual:
+    handler: src/lambda/http/recognizePageManual.handler
+    events:
+      - http:
+          method: get
+          path: recognizepagemanual
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+
+
+
+  RecognitionIsDone:
+    handler: src/lambda/http/recognitionIsDone.handler
+    events:
+      - sns:
+          arn:
+            Fn::Join:
+              - ':'
+              - - arn:aws:sns
+                - Ref: AWS::Region
+                - Ref: AWS::AccountId
+                - ${self:custom.textractDoneTopicName}
+          topicName: ${self:custom.textractDoneTopicName}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+          - s3:GetObject
+        Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET_OCR_OUTPUT}/*
+
+
+  RecognitionIsDoneManual:
+    handler: src/lambda/http/recognitionIsDoneManual.handler
+    events:
+      - http:
+          method: get
+          path: recognitionisdonemanual
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+          - s3:GetObject
+        Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET_OCR_OUTPUT}/*
+
+
+  TestHandler:
+    handler: src/lambda/http/testHandler.handler
+    events:
+      - http:
+          method: get
+          path: testhandler
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+      - Effect: Allow
+        Action:
+          - SNS:Publish
+        Resource: arn:aws:sns:us-east-1:424780530116:tornado_warning
+
+
+
+custom:
+  textractDoneTopicName: textractDoneTopic-${self:provider.stage}
+
+  serverless-offline:
+    port: 3003
+
+  dynamodb:
+    stages:
+      - ${self:provider.stage}
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+
+  documentation:
+    api:
+      info:
+        version: v1.0.0
+        title: Udagram API
+        description: Serverless application for images sharing
+    models:
+      - name: SubmitLineRequest
+        contentType: application/json
+        schema: ${file(models/submit-line-request.json)}
+      - name: UpdateLineEditRequest
+        contentType: application/json
+        schema: ${file(models/update-line-edit-request.json)}
+
+
+
+
+resources:
+  Resources:
+
+    GatewayResponseDefault4XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST,PATCH,DELETE'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
+
+
+    RequestBodyValidator:
+      Type: AWS::ApiGateway::RequestValidator
+      Properties:
+        Name: 'request-body-validator'
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        ValidateRequestBody: true
+        ValidateRequestParameters: false
+
+
+
+    PageDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: bookId
+            AttributeType: S
+          - AttributeName: pageId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: bookId
+            KeyType: HASH
+          - AttributeName: pageId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.TABLE_PAGE}
+
+
+
+    LineDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: pageId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: pageId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.TABLE_LINE}
+
+
+    EditDBTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: pageId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: pageId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.TABLE_EDIT}
+
+
+    TextractDoneTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: Textract done topic
+        TopicName: ${self:custom.textractDoneTopicName}
+
+
+
+    # -----------------------------------------------------
+
+    PageUploadBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.S3_BUCKET_PAGE_UPLOAD}
+        CorsConfiguration:
+          CorsRules:
+            -
+              AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000
+
+    PageUploadBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        PolicyDocument:
+          Id: MyPolicy
+          Version: "2012-10-17"
+          Statement:
+            - Sid: PublicReadWriteBucketPolicy
+              Effect: Allow
+              Principal: '*'
+              Action:
+                - s3:GetObject
+                - s3:PutObject
+              Resource: 'arn:aws:s3:::${self:provider.environment.S3_BUCKET_PAGE_UPLOAD}/*'
+        Bucket: !Ref PageUploadBucket
+
+
+    # -----------------------------------------------------
+
+    
+
+    OcrOutputBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.S3_BUCKET_OCR_OUTPUT}
+        CorsConfiguration:
+          CorsRules:
+            -
+              AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000
+
+    OcrOutputBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        PolicyDocument:
+          Id: MyPolicy
+          Version: "2012-10-17"
+          Statement:
+            - Sid: PublicReadWriteBucketPolicy
+              Effect: Allow
+              Principal: '*'
+              Action:
+                - s3:GetObject
+                - s3:PutObject
+              Resource: 'arn:aws:s3:::${self:provider.environment.S3_BUCKET_OCR_OUTPUT}/*'
+        Bucket: !Ref OcrOutputBucket
+
+
+    # -----------------------------------------------------
+
+    # S3_BUCKET_LINE_IMAGES: coc-line-images-424780530116-${self:provider.stage}
+
+
+    LineImagesBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.S3_BUCKET_LINE_IMAGES}
+        CorsConfiguration:
+          CorsRules:
+            -
+              AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000
+
+    LineImagesBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        PolicyDocument:
+          Id: MyPolicy
+          Version: "2012-10-17"
+          Statement:
+            - Sid: PublicReadWriteBucketPolicy
+              Effect: Allow
+              Principal: '*'
+              Action:
+                - s3:GetObject
+                - s3:PutObject
+              Resource: 'arn:aws:s3:::${self:provider.environment.S3_BUCKET_LINE_IMAGES}/*'
+        Bucket: !Ref LineImagesBucket

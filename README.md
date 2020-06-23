@@ -22,7 +22,8 @@ as he or she chooses.
 A fully featured application of this kind is too large of a project
 for the capstone project for the Cloud Computing course.  For the
 capstone, I will focus only on the portion of the application in the
-dotted box.
+dotted boxes, since those are the parts are most closely concerned with
+cloud computing skills.
 
 
 ## Basic user interface design

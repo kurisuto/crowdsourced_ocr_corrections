@@ -1,0 +1,97 @@
+import * as uuid from 'uuid'
+
+// The models represent the format of items in the database
+import { TodoItem } from '../models/TodoItem'
+import { TodoUpdate } from '../models/TodoUpdate'
+
+// TodoAccess is an abstraction over the database connection
+import { TodoAccess } from '../dataLayer/todoAccess'
+
+// The following item abstracts over s3
+import { getUploadUrl } from '../dataLayer/s3Access'
+
+// The request interfaces define the form of data from the frontend
+import { CreateTodoRequest } from '../requests/CreateTodoRequest'
+import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
+
+
+
+
+// Set up our access to the database
+const todoAccess = new TodoAccess()
+
+
+
+export async function getAllTodoItems(userId: string): Promise<TodoItem[]> {
+  return todoAccess.getAllTodoItems(userId)
+}
+
+
+
+
+
+export async function createTodoItem(userId: string, newTodo: CreateTodoRequest): Promise<TodoItem> {
+  const todoId = uuid.v4()
+  const createdAt = new Date().toISOString()
+
+  var newItem = {
+    userId,
+    todoId,
+    createdAt,
+    ...newTodo,
+    done: false,
+    attachmentUrl: ''
+  }
+
+  return todoAccess.createTodoItem(newItem)
+}
+
+
+
+export async function updateTodoItem(userId: string, todoId: string, updatedTodo: UpdateTodoRequest): Promise<boolean> {
+
+  const updatedItem: TodoUpdate = {
+  	...updatedTodo
+  }
+
+  const validTodoItem = await todoAccess.todoItemExists(userId, todoId)
+  if (!validTodoItem) {
+    throw new Error("404 no_such_item")
+  }
+
+
+  await todoAccess.updateTodoItem(userId, todoId, updatedItem)
+
+  return true
+}
+
+
+
+
+export async function deleteTodoItem(userId: string, todoId: string): Promise<boolean> {
+  const validTodoItem = await todoAccess.todoItemExists(userId, todoId)
+  if (!validTodoItem) {
+    throw new Error("404 no_such_item")
+  }
+
+  await todoAccess.deleteTodoItem(userId, todoId)
+  
+  return true
+}
+
+
+export async function generateUploadUrl(userId: string): Promise<string> {
+
+  console.log(userId)
+       
+  const imageId = uuid.v4()
+  const uploadUrl = getUploadUrl(imageId)
+
+  // await todoAccess.addAttachmentUrlToTodoItem(userId, todoId, imageId)
+
+  // TODO: Create a database record in the page table, and store
+  // the userId and the imageId.
+
+  return uploadUrl
+}
+
