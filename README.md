@@ -19,8 +19,7 @@ entire book.
 The current project addresses this problem through crowdsourcing.  The
 system is set up to allow volunteers to correct the OCR output one line
 at a time.  The effort of correcting a whole book can be spread out over
-dozens of volunteers, each of whom can correct as few or as many lines
-of text as they choose.
+dozens of volunteers.
 
 Here is a basic user interface displaying one line of text.
 
@@ -30,6 +29,8 @@ The two UI elements here are:
 * The cropped image of a line of text
 * An editable text box containing the corresponding raw OCR output
 
+Each volunteer can correct as few or as many lines of text as they
+choose.  They can start and stop whenever they like.
 
 
 ## System design

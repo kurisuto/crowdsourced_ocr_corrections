@@ -6,29 +6,31 @@ import { cors } from 'middy/middlewares'
 // @ts-ignore
 import { seanMiddy } from '../../utils/seanMiddy'
 
-import { createLogger } from '../../utils/logger'
-import { deleteEdit } from '../../businessLogic/corrections';
+import { getAllEdits } from '../../businessLogic/corrections';
 
-const logger = createLogger('todos')
 
 
 export const handler = middy( 
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  console.log(event)
 
-  logger.info(`Processing event ${JSON.stringify(event)}`)
+  const edits = await getAllEdits()
 
-  const editId = event.pathParameters.editId
-
-  await deleteEdit(event.headers.userId, editId)
 
   return {
     statusCode: 200,
-    body: JSON.stringify({})
+    body: JSON.stringify({
+      'edits': edits
+    })
   }
 
 })
 
+
+
+
 handler
   .use(cors())
   .use(seanMiddy())
+
 

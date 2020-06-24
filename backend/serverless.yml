@@ -8,6 +8,7 @@ plugins:
   - serverless-offline
   - serverless-aws-documentation
   - serverless-reqvalidator-plugin
+  - serverless-plugin-existing-s3
 
 # package:
 #   individually: true
@@ -32,6 +33,13 @@ provider:
     S3_BUCKET_LINE_IMAGES: coc-line-images-424780530116-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     AWS_XRAY_CONTEXT_MISSING: 'LOG_ERROR'
+
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:GetBucketNotification"
+        - "s3:PutBucketNotification"
+      Resource: 'arn:aws:s3:::${self:provider.environment.S3_BUCKET_PAGE_UPLOAD}/*'
 
 functions:
 
@@ -113,7 +121,7 @@ functions:
     events:
       - http:
           method: delete
-          path: line/{lineEditId}
+          path: edit/{editId}
           cors: true
     iamRoleStatements:
       - Effect: Allow
@@ -121,6 +129,28 @@ functions:
           - dynamodb:GetItem
           - dynamodb:DeleteItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+
+
+  GetAllEdits:
+    handler: src/lambda/http/getAllEdits.handler
+    events:
+      - http:
+          method: get
+          path: getalledits
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_EDIT}
       - Effect: 'Allow' # xray permissions (required)
         Action:
           - xray:PutTraceSegments
@@ -174,12 +204,12 @@ functions:
 
 
   RecognizePage:
-    handler: src/lambda/http/recognizePage.handler
+    handler: src/lambda/s3/recognizePage.handler
     events:
-      - http:
-          method: get
-          path: recognizepage
-          cors: true
+      - existingS3:
+          bucket: ${self:provider.environment.S3_BUCKET_PAGE_UPLOAD}
+          events:
+            - s3:ObjectCreated:*
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -198,6 +228,12 @@ functions:
           - textract:StartDocumentAnalysis
         Resource:
           - '*'
+      - Effect: "Allow"
+        Action:
+          - "s3:GetBucketNotification"
+          - "s3:PutBucketNotification"
+        Resource: 'arn:aws:s3:::${self:provider.environment.S3_BUCKET_PAGE_UPLOAD}/*'
+
 
   RecognizePageManual:
     handler: src/lambda/http/recognizePageManual.handler
@@ -228,7 +264,7 @@ functions:
 
 
   RecognitionIsDone:
-    handler: src/lambda/http/recognitionIsDone.handler
+    handler: src/lambda/textract/recognitionIsDone.handler
     events:
       - sns:
           arn:
@@ -420,14 +456,14 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: userId
+          - AttributeName: bookId
             AttributeType: S
-          - AttributeName: pageId
+          - AttributeName: editId
             AttributeType: S
         KeySchema:
-          - AttributeName: userId
+          - AttributeName: bookId
             KeyType: HASH
-          - AttributeName: pageId
+          - AttributeName: editId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TABLE_EDIT}
@@ -466,10 +502,10 @@ resources:
       Type: AWS::S3::BucketPolicy
       Properties:
         PolicyDocument:
-          Id: MyPolicy
+          Id: PageUploadBucketPolicyId
           Version: "2012-10-17"
           Statement:
-            - Sid: PublicReadWriteBucketPolicy
+            - Sid: PageUploadPublicReadWriteBucketPolicy
               Effect: Allow
               Principal: '*'
               Action:
@@ -506,10 +542,10 @@ resources:
       Type: AWS::S3::BucketPolicy
       Properties:
         PolicyDocument:
-          Id: MyPolicy
+          Id: OcrOutputBucketPolicyId
           Version: "2012-10-17"
           Statement:
-            - Sid: PublicReadWriteBucketPolicy
+            - Sid: OcrOutputPublicReadWriteBucketPolicy
               Effect: Allow
               Principal: '*'
               Action:
@@ -547,10 +583,10 @@ resources:
       Type: AWS::S3::BucketPolicy
       Properties:
         PolicyDocument:
-          Id: MyPolicy
+          Id: LineImagesBucketPolicyId
           Version: "2012-10-17"
           Statement:
-            - Sid: PublicReadWriteBucketPolicy
+            - Sid: LineImagesPublicReadWriteBucketPolicy
               Effect: Allow
               Principal: '*'
               Action:

@@ -15,14 +15,15 @@ export class DatabaseAccess {
 
   constructor(
     private readonly docClient: DocumentClient = createDynamoDBClient(),
-    private readonly pageTable = process.env.TABLE_PAGE
+    private readonly pageTable = process.env.TABLE_PAGE,
+    private readonly editTable = process.env.TABLE_EDIT
     )
   {
   }
 
 
 //    private readonly lineTable = process.env.TABLE_LINE,
-//    private readonly editTable = process.env.TABLE_EDIT) {
+
 
 
 
@@ -88,6 +89,47 @@ export class DatabaseAccess {
 
 
 
+  async createEdit(newEdit): Promise<boolean> {
+    console.log(newEdit)
+
+    await this.docClient
+      .put({
+        TableName: this.editTable,
+        Item: newEdit
+      })
+      .promise()
+
+
+    return true     
+  }
+
+
+  async deleteEdit(bookId: string, editId: string): Promise<boolean> {
+    console.log(newEdit)
+
+    await this.docClient
+      .put({
+        TableName: this.editTable,
+        Item: newEdit
+      })
+      .promise()
+
+
+    return true     
+  }
+
+
+  async getAllEdits(): Promise<any> {
+
+    const result = await this.docClient.scan({
+      TableName: this.editTable
+    }).promise()
+
+    return result.Items
+  }
+
+
+
   // This is not an efficient call, but it's only for development
   // purposes.  Normally, we send the pageId as the JobTag field when we
   // submit the Textract job, so we can just get it from the SNS event
@@ -110,6 +152,8 @@ export class DatabaseAccess {
     return pageId
 
   }
+
+
 
 
 
