@@ -12,7 +12,9 @@ export async function getAllEdits(): Promise<any> {
 
 
 export async function deleteEdit(userId: string, editId: string): Promise<boolean> {
-  await databaseAccess.deleteEdit(newEdit)
+  console.log(userId)
+  const bookId = '1'
+  await databaseAccess.deleteEdit(bookId, editId)
   return true
 }
 

@@ -105,6 +105,11 @@ export class DatabaseAccess {
 
 
   async deleteEdit(bookId: string, editId: string): Promise<boolean> {
+    console.log(bookId)
+    console.log(editId)
+
+
+/*
     console.log(newEdit)
 
     await this.docClient
@@ -113,7 +118,7 @@ export class DatabaseAccess {
         Item: newEdit
       })
       .promise()
-
+*/
 
     return true     
   }
