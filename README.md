@@ -1,73 +1,122 @@
 # Crowdsourced OCR Corrections
-Capstone student project for Udacity Cloud Computing course
+
+This project is submitted as my capstone student project for Udacity
+Cloud Computing course.
+
 
 ## Overview
 
 This project is something off the beaten path.  It has to do with
 crowdsourcing of correction of OCR errors.
 
-Projects such as Project Gutenberg are concerned with digitizing
-copyright-expired texts.  The digitizing process can be as crude as
-someone manually typing a text.
+Efforts such as Project Gutenberg are concerned with digitizing
+copyright-expired texts.  The digitizing process can be as crude and
+inefficient as someone manually typing a text.  OCR is a step up,
+but it is big job for one person to correct the OCR output for an
+entire book.
 
-Following is a design for a system which allows volunteers to correct
-OCR errors in bite-sized pieces of text.
+The current project addresses this problem through crowdsourcing.  The
+task of correcting OCR output can be spread out over many volunteers.
+The system is set up to allow volunteers to correct one line of text
+at a time.
 
-![Alt text](images/design_01.png?raw=true "Image 1")
-
-The correction of a single book might be spread out over dozens of
-volunteers. A single volunteer can correct as few or as many fragments
-as he or she chooses.
-
-A fully featured application of this kind is too large of a project
-for the capstone project for the Cloud Computing course.  For the
-capstone, I will focus only on the portion of the application in the
-dotted boxes, since those are the parts are most closely concerned with
-cloud computing skills.
-
-
-## Basic user interface design
-
-Here is how the core of the user interface might look to the user.
+Here is a basic user interface displaying one line of text, and the
+uncorrected but editable OCR output for that line:
 
 ![Alt text](images/design_02.png?raw=true "Image 2")
 
-There are two key parts:
 
-* A cropped image of one line of text from the page image
-* The corresponding OCRed text, which may include OCR errors, presented in an editable textbox.
+## System design
 
-The text is presented to the volunteer for correction one line at a time.
+Following is a design for a system implementing this kind of
+crowdsourced correction of OCR errors.
 
-Of course, this is a slightly contrived example.  Decent language
-modeling would generally predict that “bcoks” is an error for “books”.
-However, some errors will still remain.
+![Alt text](images/design_01.png?raw=true "Image 1")
+
+Fully implementing this system would be too large of a project for the
+Cloud Computing capstone project.  I picked the portions of the system
+which most heavily exercise the core cloud computing skills taught in
+the course.
+
+I left some parts of the system unimplemented, or implemented only stub
+logic as needed.  These were generally parts of the system which don't
+heavily exercise cloud computing skills, such as the complicated logic
+for assigning specific lines to text to specific volunteers.
+
+Here is an overview of two portions that I implemented.
+
+### Upload and OCR
+
+* The user scans a page and uploads the page image using the web frontend.  The transfer is done by means of a signed URL, and the image is stored in an s3 bucket.
+* The s3 upload produces an SNS event which is sent to a Lambda function called RecognizePage.  This function does two things:
+** It calls the AWS Textract service to kick off asynchronous OCR on the page image.
+** It creates a database record about the page, recording such information as the userId, and noting an initial OCR status of "in progress".
+* When Textract has completed asynchronous OCR, it sends an event to an SNS topic which we specified above when starting OCR.  This event kicks off a second Lambda function called RecognitionIsDone, which does two things:
+** It calls Textract to retrieve the recognized text, using the Textract jobId in the event as the key.  It saves the Textract output to a second s3 bucket in the form of a JSON file which contains both the text, and the bounding rectangles around the pieces of text.
+** It updates the page record in the database, noting that the status is now "completed"
+
+### Crowdsourcing web application
+
+The API for the text correction app includes the following methods:
+
+* A method to get the next line of text to be corrected: both the raw OCR output, and the URL to the cropped image of that line.
+* A method to submit a corrected line of text.  Rather than overwrite the raw OCR output, we create an edit record in a separate database table, similar to how edit history is implemented in a wiki.
+* There are also methods to update an edit record by marking it REJECTED, or to delete it altogether (these operations affect only the edit record, not the original OCRed text).  These methods are somewhat contrived for the sake of satisfying the capstone requirements, but a user with admin privileges might use these methods if a malicious user submits inappropriate content, such as spam, obscenity, or copyrighted material.
+
+
+## Data model
+
+Although I implemented only a portion of the system, my data model was
+informed by what would be required to implement it fully.
+
+In some APIs, an **update** means that the previous contents of a record
+are simply overwritten, and no record of the previous value is
+maintained.
+
+This is not how all systems work.  For example, in Wikipedia, when a
+user updates an article, it is not the case that the previous version
+of the article is simply overwritten.  Rather, a new record is added
+to the end of the edit history for that article.
+
+The model for the present project has some similarities to the
+Wikipedia model.  When a user submits the corrected version of a line,
+the record containing the original OCRed text is not overwritten.
+Rather, an edit record is created and is associated with the line.
+
+Unlike Wikipedia, however, the edit records do not form a temporal
+sequence of edits.  If the same line is assigned to two volunteers, it
+is not the case that one volunteer is editing the other volunteer’s
+edit.  Rather, the two volunteers edit the raw OCRed text
+independently.  At some later time, the scheduler judges whether the
+two edits agree, and schedules a third volunteer if needed.
+
+As already noted, I have not implemented this scheduling process for
+the capstone project.  However, I’ve designed the data model with this
+functionality in mind.
+
+Thus, the data model is a one-to-many model.  One line object can
+correspond to multiple edit records.
+
+![Alt text](images/design_03.png?raw=true "Image 3")
 
 
 ## Mocking up the data
 
-This system could potentially handle a century’s worth of newspapers,
-covering hundreds of thousands of pages.  For demonstration purposes,
-I mocked up the data for a few pages from *The Wizard of Oz,* a text
-on which the copyright has expired.
+I did not implement the part of the system which loads the OCRed text into
+a database for editing, or which crops the page images into individual lines.
 
-I used AWS Textract to perform the OCR.  One form of output from AWS
-Textract is a JSON document which includes not only the recognized
-text, but also the bounding rectangles for the lines of text in the
-original page image.
+For demonstration and development purposes, I mocked up a small amount
+of data on my laptop using some hacked Python scripts.  I manually
+performed OCR using AWS Textract on a few scanned pages of *The Wizard
+of Oz*, a text for which the copyright has expired.  One Python script
+seeded the database with the recognized text.  Another script used the
+bounding rectangles to shred the page images into individual lines,
+which I manually uploaded to s3.
 
-For the purpose of mocking up some data, I hacked a Python script on
-my laptop to read these bounding rectangles, and to repeatedly crop
-the page image, producing the snippet images of individual lines like
-the one in the user interface above.  I manually uploaded these image
-files to s3.  (A fully featured app would do all of this
-automatically.)
-
-Because Textract gives pretty accurate results, for the sake of this
-mockup, I deliberately introduced fake OCR errors into the recognized
-text.  I hacked another Python script to randomly apply specific
-substitutions meant to resemble typical OCR errors (o -> c, d -> cl,
-etc.)
+Textract gives pretty accurate results.  For the sake of this mockup,
+I deliberately introduced fake OCR errors into the recognized text.  I
+hacked another Python script to randomly apply specific substitutions
+meant to resemble typical OCR errors (o -> c, d -> cl, etc.)
 
 
 
@@ -110,72 +159,5 @@ time.
 
 However, the needs of an actual scheduler have been taken into
 consideration in the data model.
-
-
-## Data model
-
-In some APIs, an **update** means that the previous contents of a record
-are simply overwritten, and no record of the previous value is
-maintained.
-
-This is not how all systems work.  For example, in Wikipedia, when a
-user updates an article, it is not the case that the previous version
-of the article is simply overwritten.  Rather, a new record is added
-to the end of the edit history for that article.
-
-The model for the present project has some similarities to the
-Wikipedia model.  When a user submits the corrected version of a line,
-the record containing the original OCRed text is not overwritten.
-Rather, an edit record is created and is associated with the line.
-
-Unlike Wikipedia, however, the edit records do not form a temporal
-sequence of edits.  If the same line is assigned to two volunteers, it
-is not the case that one volunteer is editing the other volunteer’s
-edit.  Rather, the two volunteers edit the raw OCRed text
-independently.  At some later time, the scheduler judges whether the
-two edits agree, and schedules a third volunteer if needed.
-
-As already noted, I have not implemented this scheduling process for
-the capstone project.  However, I’ve designed the data model with this
-functionality in mind.
-
-Thus, the data model is a one-to-many model.  One line object can
-correspond to multiple edit records.
-
-![Alt text](images/design_03.png?raw=true "Image 3")
-
-
-## API
-
-The API for this capstone implements the following methods.
-
-* GET lineEdit: When the user requests a line to correct, the frontend
-  sends this request to the API.  The API returns the raw OCRed text,
-  a link to the corresponding line image in s3, and an identifier for
-  the line object.
-
-* POST lineEdit: The frontend submits the corrected text together with
-  the line identifier.  The API creates a database record of the edit
-  event, including the corrected text and the userId.
-
-* DELETE lineEdit: This method would be used only rarely.  For
-  example, if a malicious user submits inappropriate content
-  (obscenity, copyrighted text, etc.), a user with administrator
-  privileges could use frontend controls which call this method.
-
-* PATCH lineEdit: The capstone rubric requires that “the application
-  allows users to create, update, delete items”.  In the context of
-  this application, line objects are not “updated” per se; rather, an
-  edit record is created and is associated with a line object.
-  However, since the ability to update a record is a requirement, I
-  have come up with a somewhat contrived use case where a user with
-  administrator privileges might mark an edit record as REJECTED
-  without actually deleting it.
-
-Note that I have not actually implemented user roles which distinguish
-administrator from non-administrator users.  For this capstone
-project, all of these methods are available to any authenticated user.
-A further, future refinement would be to restrict DELETE and PATCH
-only to adminstrator users.
 
 
