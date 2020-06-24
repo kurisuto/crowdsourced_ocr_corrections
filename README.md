@@ -20,10 +20,14 @@ task of correcting OCR output can be spread out over many volunteers.
 The system is set up to allow volunteers to correct one line of text
 at a time.
 
-Here is a basic user interface displaying one line of text, and the
-uncorrected but editable OCR output for that line:
+Here is a basic user interface displaying one line of text.
 
 ![Alt text](images/design_02.png?raw=true "Image 2")
+
+The two UI elements here are:
+* The cropped image of a line of text
+* An editable text box containing the corresponding raw OCR output
+
 
 
 ## System design
@@ -49,11 +53,11 @@ Here is an overview of two portions that I implemented.
 
 * The user scans a page and uploads the page image using the web frontend.  The transfer is done by means of a signed URL, and the image is stored in an s3 bucket.
 * The s3 upload produces an SNS event which is sent to a Lambda function called RecognizePage.  This function does two things:
-** It calls the AWS Textract service to kick off asynchronous OCR on the page image.
-** It creates a database record about the page, recording such information as the userId, and noting an initial OCR status of "in progress".
+  * It calls the AWS Textract service to kick off asynchronous OCR on the page image.
+  * It creates a database record about the page, recording such information as the userId, and noting an initial OCR status of "in progress".
 * When Textract has completed asynchronous OCR, it sends an event to an SNS topic which we specified above when starting OCR.  This event kicks off a second Lambda function called RecognitionIsDone, which does two things:
-** It calls Textract to retrieve the recognized text, using the Textract jobId in the event as the key.  It saves the Textract output to a second s3 bucket in the form of a JSON file which contains both the text, and the bounding rectangles around the pieces of text.
-** It updates the page record in the database, noting that the status is now "completed"
+  * It calls Textract to retrieve the recognized text, using the Textract jobId in the event as the key.  It saves the Textract output to a second s3 bucket in the form of a JSON file which contains both the text, and the bounding rectangles around the pieces of text.
+  * It updates the page record in the database, noting that the status is now "completed"
 
 ### Crowdsourcing web application
 
