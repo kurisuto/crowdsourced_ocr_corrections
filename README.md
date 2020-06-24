@@ -11,14 +11,16 @@ crowdsourcing of correction of OCR errors.
 
 Efforts such as Project Gutenberg are concerned with digitizing
 copyright-expired texts.  The digitizing process can be as crude and
-inefficient as someone manually typing a text.  OCR is a step up,
-but it is big job for one person to correct the OCR output for an
+inefficient as someone manually typing a text.  Scanning and OCR is a
+step up in sophistication, but it is big job--potentially a
+prohibitive one--for one person to correct the OCR output for an
 entire book.
 
 The current project addresses this problem through crowdsourcing.  The
-task of correcting OCR output can be spread out over many volunteers.
-The system is set up to allow volunteers to correct one line of text
-at a time.
+system is set up to allow volunteers to correct the OCR output one line
+at a time.  The effort of correcting a whole book can be spread out over
+dozens of volunteers, each of whom can correct as few or as many lines
+of text as they choose.
 
 Here is a basic user interface displaying one line of text.
 
@@ -54,10 +56,10 @@ Here is an overview of two portions that I implemented.
 * The user scans a page and uploads the page image using the web frontend.  The transfer is done by means of a signed URL, and the image is stored in an s3 bucket.
 * The s3 upload produces an SNS event which is sent to a Lambda function called RecognizePage.  This function does two things:
   * It calls the AWS Textract service to kick off asynchronous OCR on the page image.
-  * It creates a database record about the page, recording such information as the userId, and noting an initial OCR status of "in progress".
-* When Textract has completed asynchronous OCR, it sends an event to an SNS topic which we specified above when starting OCR.  This event kicks off a second Lambda function called RecognitionIsDone, which does two things:
-  * It calls Textract to retrieve the recognized text, using the Textract jobId in the event as the key.  It saves the Textract output to a second s3 bucket in the form of a JSON file which contains both the text, and the bounding rectangles around the pieces of text.
-  * It updates the page record in the database, noting that the status is now "completed"
+  * It creates a database record about the page, including such information as the userId, and noting an initial OCR status of "in progress".
+* When Textract has completed asynchronous OCR, it sends an event to an SNS topic which we specified above when invoking Textract.  This event kicks off a second Lambda function called RecognitionIsDone, which does two things:
+  * It calls Textract to retrieve the recognized text, using the Textract jobId in the event as the key.  It saves the Textract output to a second s3 bucket in the form of a JSON file.  The JSON file contains both the text, and the bounding rectangles around the pieces of text.
+  * It updates the page record in the database, noting that the status is now "OCR completed".
 
 ### Crowdsourcing web application
 

@@ -10,3 +10,8 @@ jspm_packages
 
 # Local DynamoDb
 .dynamodb
+
+.DS_Store
+*~
+
+z_dont_check_in
