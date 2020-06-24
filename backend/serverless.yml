@@ -1,5 +1,5 @@
 service:
-  name: coc2
+  name: coc3
 
 plugins:
   - serverless-webpack
@@ -193,6 +193,11 @@ functions:
           - xray:PutTelemetryRecords
         Resource:
           - '*'
+      - Effect: Allow
+        Action:
+          - textract:StartDocumentAnalysis
+        Resource:
+          - '*'
 
   RecognizePageManual:
     handler: src/lambda/http/recognizePageManual.handler
@@ -212,6 +217,11 @@ functions:
         Action:
           - xray:PutTraceSegments
           - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+      - Effect: Allow
+        Action:
+          - textract:StartDocumentAnalysis
         Resource:
           - '*'
 
@@ -234,8 +244,32 @@ functions:
         Action:
           - s3:PutObject
           - s3:GetObject
-        Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET_OCR_OUTPUT}/*
+        Resource: 'arn:aws:s3:::${self:provider.environment.S3_BUCKET_OCR_OUTPUT}'
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+      - Effect: Allow
+        Action:
+          - textract:GetDocumentAnalysis
+        Resource:
+          - '*'
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+          - dynamodb:Query
+          - dynamodb:Scan
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
 
+# The following didn't solve my problem.
+#      - Effect: Allow
+#        Action: "sts:AssumeRole"
+#        Principal:
+#          Service:
+#            - lambda.amazonaws.com
 
   RecognitionIsDoneManual:
     handler: src/lambda/http/recognitionIsDoneManual.handler
@@ -250,6 +284,17 @@ functions:
           - s3:PutObject
           - s3:GetObject
         Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET_OCR_OUTPUT}/*
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+      - Effect: Allow
+        Action:
+          - textract:GetDocumentAnalysis
+        Resource:
+          - '*'
 
 
   TestHandler:

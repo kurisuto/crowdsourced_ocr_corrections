@@ -1,21 +1,31 @@
 import 'source-map-support/register'
 import { SNSEvent, SNSHandler } from 'aws-lambda'
-import * as AWS from 'aws-sdk'
 
-const sns = new AWS.SNS();
+// import * as AWS from 'aws-sdk'
+// const sns = new AWS.SNS();
 
+import { recognitionIsDone } from '../../businessLogic/recognition';
 
 
 export const handler: SNSHandler = async (event: SNSEvent) => {
 
   console.log('Processing SNS event ', JSON.stringify(event))
 
-  await sendMessage()
+  for (const snsRecord of event.Records) {
+    const s3EventStr = snsRecord.Sns.Message
+    console.log('Processing S3 event', s3EventStr)
+    const s3Event = JSON.parse(s3EventStr)
+    const jobId = s3Event['JobId']
+    console.log(jobId)
+    await recognitionIsDone(jobId)
+  }
+
+  // await sendMessage()
 
 }
 
 
-
+/*
 async function sendMessage() {
 
   const createdAt = new Date().toISOString()
@@ -30,5 +40,7 @@ async function sendMessage() {
   await sns.publish(params).promise()
 
 }
+
+*/
 
 

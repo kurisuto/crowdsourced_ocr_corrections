@@ -26,7 +26,7 @@ export function getUploadUrl(imageId: string) {
 }
 
 
-export function writeOcrResultsToS3(pageId, ocrResults) {
+export async function writeOcrResultsToS3(pageId, ocrResults) {
   const jsonString = JSON.stringify(ocrResults)
 
   const filename = pageId + ".json"
@@ -40,17 +40,18 @@ export function writeOcrResultsToS3(pageId, ocrResults) {
       CacheControl: 'max-age=60'
   }
 
-  // TODO: Improve this
-  s3.putObject(request, (error, data) => {
-    if (error) {
-      console.log(error)
-    }
-    else {
-      console.log(data)
-    }
-  })
+  console.log(request)
 
+  await new Promise((resolve, reject) => {
+    s3.putObject(request, function(error, data) {
+      if (error) {
+        reject(error); 
+      }
+      else resolve(data);
+    });
+  });
 
+  return true
 }
 
 
