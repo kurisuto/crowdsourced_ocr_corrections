@@ -7,7 +7,7 @@ import { cors } from 'middy/middlewares'
 import { seanMiddy } from '../../utils/seanMiddy'
 
 import { createLogger } from '../../utils/logger'
-import { deleteEdit } from '../../businessLogic/corrections';
+import { deleteEdit } from '../../businessLogic/edits';
 
 const logger = createLogger('todos')
 

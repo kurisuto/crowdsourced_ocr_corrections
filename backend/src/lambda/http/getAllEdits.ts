@@ -6,7 +6,7 @@ import { cors } from 'middy/middlewares'
 // @ts-ignore
 import { seanMiddy } from '../../utils/seanMiddy'
 
-import { getAllEdits } from '../../businessLogic/corrections';
+import { getAllEdits } from '../../businessLogic/edits';
 
 
 

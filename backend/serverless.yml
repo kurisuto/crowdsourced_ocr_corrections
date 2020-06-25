@@ -236,7 +236,7 @@ functions:
 
 
   RecognizePageManual:
-    handler: src/lambda/http/recognizePageManual.handler
+    handler: src/lambda/dev/recognizePageManual.handler
     events:
       - http:
           method: get
@@ -308,11 +308,11 @@ functions:
 #            - lambda.amazonaws.com
 
   RecognitionIsDoneManual:
-    handler: src/lambda/http/recognitionIsDoneManual.handler
+    handler: src/lambda/dev/recognitionIsDoneManual.handler
     events:
       - http:
           method: get
-          path: recognitionisdonemanual
+          path: recognitionisdonemanual/{jobId}
           cors: true
     iamRoleStatements:
       - Effect: Allow
@@ -331,10 +331,40 @@ functions:
           - textract:GetDocumentAnalysis
         Resource:
           - '*'
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+          - dynamodb:Query
+          - dynamodb:Scan
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
+
+
+  LoadFakeLineData:
+    handler: src/lambda/dev/load_fake_line_data.handler
+    events:
+      - http:
+          method: get
+          path: loadfakelinedata
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_LINE}
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+
 
 
   TestHandler:
-    handler: src/lambda/http/testHandler.handler
+    handler: src/lambda/dev/testHandler.handler
     events:
       - http:
           method: get

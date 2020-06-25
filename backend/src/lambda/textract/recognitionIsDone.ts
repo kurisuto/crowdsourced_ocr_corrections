@@ -4,7 +4,7 @@ import { SNSEvent, SNSHandler } from 'aws-lambda'
 // import * as AWS from 'aws-sdk'
 // const sns = new AWS.SNS();
 
-import { recognitionIsDone } from '../../businessLogic/recognition';
+import { recognitionIsDone } from '../../businessLogic/pages';
 
 
 export const handler: SNSHandler = async (event: SNSEvent) => {

@@ -6,31 +6,29 @@ import { cors } from 'middy/middlewares'
 // @ts-ignore
 import { seanMiddy } from '../../utils/seanMiddy'
 
-import { getAllPages } from '../../businessLogic/pages';
-
+import { startOcr } from '../../businessLogic/pages';
 
 
 export const handler = middy( 
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+
   console.log(event)
 
-  const pages = await getAllPages()
+  const imageFilename = 'wizard_of_oz_179.jpg'
 
+  await startOcr(event.headers.userId, imageFilename)
 
   return {
     statusCode: 200,
     body: JSON.stringify({
-      'pages': pages
+      'message': 'The function call is completed'
     })
   }
 
 })
 
 
-
-
 handler
   .use(cors())
   .use(seanMiddy())
-
 

@@ -36,9 +36,11 @@ export async function writeOcrResultsToS3(pageId, ocrResults) {
       Key: filename,
       Body: jsonString,
       ContentType: 'application/json; charset=utf-8',
-      ACL: 'public-read',
-      CacheControl: 'max-age=60'
   }
+
+  //    ACL: 'public-read',
+  //    CacheControl: 'max-age=60'
+
 
   console.log(request)
 

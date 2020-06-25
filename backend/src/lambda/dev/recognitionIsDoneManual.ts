@@ -7,7 +7,7 @@ import { cors } from 'middy/middlewares'
 // @ts-ignore
 import { seanMiddy } from '../../utils/seanMiddy'
 
-import { recognitionIsDone } from '../../businessLogic/recognition';
+import { recognitionIsDone } from '../../businessLogic/pages';
 
 
 export const handler = middy( 
@@ -15,7 +15,9 @@ export const handler = middy(
 
   console.log(event)
 
-  const jobId = '85d8efa646774d55095ae469d1f3c2c371920f70433a7a5e3f08cc3d16c6d0fe'
+
+  const jobId = event.pathParameters.jobId
+  // const jobId = '1de72977d57f658e4e1aadf4300c7a1dd3e978e76b74774540291ad9538a6287'
 
   await recognitionIsDone(jobId)
 

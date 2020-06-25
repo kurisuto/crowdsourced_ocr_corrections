@@ -19,13 +19,22 @@ export class DatabaseAccess {
     private readonly editTable = process.env.TABLE_EDIT
     )
   {
+     //    private readonly lineTable = process.env.TABLE_LINE,
   }
 
 
-//    private readonly lineTable = process.env.TABLE_LINE,
+  // ------------------------------------------------------------------
+  // METHODS FOR THE PAGE TABLE
 
 
+  async getAllPages(): Promise<any> {
 
+    const result = await this.docClient.scan({
+      TableName: this.pageTable
+    }).promise()
+
+    return result.Items
+  }
 
   async createPage(newPage): Promise<boolean> {
     console.log(newPage)
@@ -39,16 +48,6 @@ export class DatabaseAccess {
 
 
     return true
-  }
-
-
-  async getAllPages(): Promise<any> {
-
-    const result = await this.docClient.scan({
-      TableName: this.pageTable
-    }).promise()
-
-    return result.Items
   }
 
 
@@ -105,20 +104,16 @@ export class DatabaseAccess {
 
 
   async deleteEdit(bookId: string, editId: string): Promise<boolean> {
-    console.log(bookId)
-    console.log(editId)
-
-
-/*
-    console.log(newEdit)
 
     await this.docClient
-      .put({
+      .delete({
         TableName: this.editTable,
-        Item: newEdit
+        Key: {
+          bookId: bookId,
+          editId: editId
+        }
       })
       .promise()
-*/
 
     return true     
   }
@@ -134,6 +129,24 @@ export class DatabaseAccess {
   }
 
 
+
+
+  /*
+
+  The following function is not efficient at all.  It's just for code
+  development purposes when there's only a small amount of data in the
+  database.
+
+  Under the normal flow, when a Textract job finished, it sends an SNS
+  event containing a JobId which we can then use to retrieve the
+  recognized text.  However, when we're running in an sls offline
+  environment, we don't get that event, so we have to simulate it with
+  a special HTTP GET which we use only for development purposes, not
+  as part of the deployed app.  Since we don't get the Textract JobId...
+
+  Does that mechanism actually work?  Need to check.
+
+  */
 
   // This is not an efficient call, but it's only for development
   // purposes.  Normally, we send the pageId as the JobTag field when we

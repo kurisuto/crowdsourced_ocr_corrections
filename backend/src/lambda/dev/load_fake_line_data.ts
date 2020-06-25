@@ -7,7 +7,7 @@ import { cors } from 'middy/middlewares'
 import { seanMiddy } from '../../utils/seanMiddy'
 
 
-import { makeFakeEdit } from '../../businessLogic/corrections';
+import { fakeLineData } from './fake_line_data.ts';
 
 
 
@@ -17,7 +17,11 @@ export const handler = middy(
   console.log(event)
   console.log('This is the test handler.')
 
-  await makeFakeEdit()
+  const fakeLines = JSON.parse(fakeLineData)
+
+  console.log(fakeLines[2])
+
+  // await makeFakeEdit()
 
   return {
     statusCode: 200,

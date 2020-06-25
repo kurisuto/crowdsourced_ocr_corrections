@@ -6,17 +6,18 @@ import { cors } from 'middy/middlewares'
 // @ts-ignore
 import { seanMiddy } from '../../utils/seanMiddy'
 
-import { startOcr } from '../../businessLogic/recognition';
+
+import { makeFakeEdit } from '../../businessLogic/edits';
+
 
 
 export const handler = middy( 
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
   console.log(event)
+  console.log('This is the test handler.')
 
-  const imageFilename = 'wizard_of_oz_179.jpg'
-
-  await startOcr(event.headers.userId, imageFilename)
+  await makeFakeEdit()
 
   return {
     statusCode: 200,
@@ -28,7 +29,12 @@ export const handler = middy(
 })
 
 
+
+
+
+
 handler
   .use(cors())
   .use(seanMiddy())
+
 

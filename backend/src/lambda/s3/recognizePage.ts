@@ -1,7 +1,7 @@
 import 'source-map-support/register'
 import { SNSEvent, SNSHandler } from 'aws-lambda'
 
-import { startOcr } from '../../businessLogic/recognition';
+import { startOcr } from '../../businessLogic/pages';
 
 
 export const handler: SNSHandler = async (event: SNSEvent) => {
