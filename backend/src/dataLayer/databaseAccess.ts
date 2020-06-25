@@ -16,10 +16,10 @@ export class DatabaseAccess {
   constructor(
     private readonly docClient: DocumentClient = createDynamoDBClient(),
     private readonly pageTable = process.env.TABLE_PAGE,
-    private readonly editTable = process.env.TABLE_EDIT
+    private readonly editTable = process.env.TABLE_EDIT,
+    private readonly lineTable = process.env.TABLE_LINE
     )
   {
-     //    private readonly lineTable = process.env.TABLE_LINE,
   }
 
 
@@ -86,6 +86,12 @@ export class DatabaseAccess {
     return result.Item
   }
 
+
+
+
+
+  // ------------------------------------------------------------------
+  // METHODS FOR THE EDIT TABLE
 
 
   async createEdit(newEdit): Promise<boolean> {
@@ -173,6 +179,33 @@ export class DatabaseAccess {
 
 
 
+  // ------------------------------------------------------------------
+  // METHODS FOR THE LINE TABLE
+
+
+  async createLine(newLine): Promise<boolean> {
+    console.log(newLine)
+
+    await this.docClient
+      .put({
+        TableName: this.lineTable,
+        Item: newLine
+      })
+      .promise()
+
+
+    return true     
+  }
+
+
+  async getAllLines(): Promise<any> {
+
+    const result = await this.docClient.scan({
+      TableName: this.lineTable
+    }).promise()
+
+    return result.Items
+  }
 
 
 }

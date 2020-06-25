@@ -340,6 +340,29 @@ functions:
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
 
 
+
+  GetAllLines:
+    handler: src/lambda/http/getAllLines.handler
+    events:
+      - http:
+          method: get
+          path: getalllines
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_LINE}
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+
+
   LoadFakeLineData:
     handler: src/lambda/dev/load_fake_line_data.handler
     events:
@@ -469,14 +492,14 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: userId
+          - AttributeName: bookId
             AttributeType: S
-          - AttributeName: pageId
+          - AttributeName: lineId
             AttributeType: S
         KeySchema:
-          - AttributeName: userId
+          - AttributeName: bookId
             KeyType: HASH
-          - AttributeName: pageId
+          - AttributeName: lineId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TABLE_LINE}
@@ -594,6 +617,7 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:provider.environment.S3_BUCKET_LINE_IMAGES}
+        # existing: true
         CorsConfiguration:
           CorsRules:
             -
