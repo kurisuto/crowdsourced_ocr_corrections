@@ -1,19 +1,19 @@
 import * as AWS  from 'aws-sdk'
 import * as AWSXRay from 'aws-xray-sdk'
+const XAWS = AWSXRay.captureAWS(AWS)
 
 import { createLogger } from '../utils/logger'
-
-const XAWS = AWSXRay.captureAWS(AWS)
 const logger = createLogger('ced')
 
+
 const imageUploadBucketName = process.env.S3_BUCKET_PAGE_UPLOAD
-
-//const textractSnsRoleArn = 'arn:aws:iam::424780530116:role/TempAdminRole'
-// const textractSnsArn = 'arn:aws:sns:us-east-1:424780530116:textractDoneTopic-dev'
-// arn:aws:sns:us-east-1:424780530116:COC-TextractDoneTopic-dev
-
 const textractSnsRoleArn = process.env.TEXTRACT_DONE_ROLE_ARN
 const textractSnsArn = process.env.TEXTRACT_DONE_TOPIC_ARN
+
+// TODO: Remove these:
+// const textractSnsRoleArn = 'arn:aws:iam::424780530116:role/TempAdminRole'
+// const textractSnsArn = 'arn:aws:sns:us-east-1:424780530116:textractDoneTopic-dev'
+
 
 
 const textract = new XAWS.Textract({
@@ -41,7 +41,7 @@ export async function submitOcr(pageId: string, imageFilename: string): Promise<
     }
   }
 
-  console.log(params)
+  logger.info(params)
 
   let textractOutput = await new Promise((resolve, reject) => {
     textract.startDocumentAnalysis(params, function(err, data) {

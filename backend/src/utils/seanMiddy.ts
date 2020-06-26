@@ -6,6 +6,9 @@ module.exports = { seanMiddy: () => ({
   // out into the middleware.  Our strategy is to save the extracted userId
   // as a field of the event.
   before: (handler, next) => {
+    const Logger = require('./logger.ts')
+    const logger = Logger.createLogger('ced')
+  
     const AuthUtils = require('../auth/utils.ts')
 
     // This shouldn't happen, but catch the case where the Authorization
@@ -26,7 +29,7 @@ module.exports = { seanMiddy: () => ({
       console.log('Processing event: ', handler.event)
     }
     else {
-      // logger.info(`Processing event ${JSON.stringify(handler.event)}`)
+      logger.info(`Processing event ${JSON.stringify(handler.event)}`)
     }
 
 

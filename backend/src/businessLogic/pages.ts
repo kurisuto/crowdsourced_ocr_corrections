@@ -1,5 +1,10 @@
 import * as uuid from 'uuid'
 
+import { createLogger } from '../utils/logger'
+const logger = createLogger('ced')
+
+import { Page } from '../models/Page'
+
 // Data abstraction layer
 import { DatabaseAccess } from '../dataLayer/databaseAccess'
 import { getUploadUrl, writeOcrResultsToS3 } from '../dataLayer/s3Access'
@@ -7,8 +12,6 @@ import { submitOcr, fetchOcrResults } from '../dataLayer/textractAccess'
 
 // Set up our access to the database
 const databaseAccess = new DatabaseAccess()
-
-import { Page } from '../models/Page'
 
 
 
@@ -66,7 +69,7 @@ export async function recognitionIsDone(jobId: string): Promise<any> {
   const status = 'completed'
   const ocrCompletedAt = new Date().toISOString()
 
-  console.log('Fetching results for jobId ' + jobId)
+  logger.info('Fetching results for jobId ' + jobId)
   const ocrResults = await fetchOcrResults(jobId)
 
   // jobStatus can be FAILED, IN_PROGRESS, PARTIAL_SUCCESS, SUCCEEDED 
@@ -88,14 +91,14 @@ export async function recognitionIsDone(jobId: string): Promise<any> {
   if (typeof(pageId) == "undefined") {
     pageId = await databaseAccess.jobIdToPageId(jobId)
   }
-  console.log(pageId)
+  logger.info("Determined the following pageId correponding to this OCR job: ", pageId)
 
 
 
-  console.log('Writing results to s3')
+  logger.info('Writing results to s3')
   await writeOcrResultsToS3(pageId, ocrResults)
 
-  console.log('Updating page table')
+  logger.info('Updating page table')
   await databaseAccess.markPageAsCompleted(bookId, pageId, status, ocrCompletedAt)
 
   return true

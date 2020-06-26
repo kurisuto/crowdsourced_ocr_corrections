@@ -3,16 +3,43 @@ const databaseAccess = new DatabaseAccess()
 
 import { Line } from '../models/Line'
 
+import { createLogger } from '../utils/logger'
+const logger = createLogger('ced')
+
 
 export async function getAllLines(): Promise<Line[]> {
   const lines = await databaseAccess.getAllLines()
   return lines
 }
 
+/*
 
+Following is a stub implementation of the process to assign the next
+line to a user.  In a full implementation, this decision-making
+process would be very complicated.  It would involve the following:
+
+-- We assign each line independently to at least two users.  If they
+   don't agree, we assign it to a third user, and so on.  Also, we
+   need to make sure that a user doesn't get assigned the same
+   line twice.
+
+-- We might occasionally throw in lines for which the correct answer
+   is already known to rate the accuracy of individual users.  We
+   might use this information to make sure that two weak users
+   aren't assigned to the same line, for example.
+
+The current stub implementation simply randomly selects a line from
+the mocked-up data.
+
+*/
 export async function getNextLineForEditing(userId: string): Promise<any> {
   const lines = await databaseAccess.getAllLines()
-  console.log(userId)
+
+  // For an actual implementation, we'd definitely need to
+  // know who this user is, so we'll leave it in the function
+  // arguments.  The following line just absorbs the unused
+  // variable warning.
+  logger.info("userId: ", userId)
 
   var line = lines[Math.floor(Math.random() * lines.length)];
 

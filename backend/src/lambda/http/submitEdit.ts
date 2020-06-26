@@ -7,11 +7,12 @@ import { cors } from 'middy/middlewares'
 import { seanMiddy } from '../../utils/seanMiddy'
 
 import { createLogger } from '../../utils/logger'
+const logger = createLogger('ced')
+
 import { submitEdit } from '../../businessLogic/edits';
 import { getNextLineForEditing } from '../../businessLogic/lines';
 import { SubmitEditRequest } from '../../requests/SubmitEditRequest'
 
-const logger = createLogger('ced')
 
 
 export const handler = middy( 
@@ -20,7 +21,7 @@ export const handler = middy(
   logger.info(`Processing event ${JSON.stringify(event)}`)
 
   const record: SubmitEditRequest = JSON.parse(event.body)
-  console.log(record)
+  logger.info(record)
 
   await submitEdit(event.headers.userId, record)
 

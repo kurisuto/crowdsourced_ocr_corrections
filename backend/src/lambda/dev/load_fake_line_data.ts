@@ -1,6 +1,9 @@
 import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 
+import { createLogger } from '../../utils/logger'
+const logger = createLogger('ced')
+
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 // @ts-ignore
@@ -15,7 +18,7 @@ import { fakeLineData } from './fake_line_data.ts';
 export const handler = middy( 
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
-  console.log(event)
+  logger.info(event)
 
   const fakeLines = JSON.parse(fakeLineData)
 

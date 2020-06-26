@@ -2,6 +2,9 @@ import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 // import * as AWS from 'aws-sdk'
 
+import { createLogger } from '../../utils/logger'
+const logger = createLogger('ced')
+
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 // @ts-ignore
@@ -13,8 +16,7 @@ import { recognitionIsDone } from '../../businessLogic/pages';
 export const handler = middy( 
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
-  console.log(event)
-
+  logger.info(event)
 
   const jobId = event.pathParameters.jobId
 

@@ -40,7 +40,7 @@ export class DatabaseAccess {
 
 
   async createPage(newPage: Page): Promise<boolean> {
-    console.log(newPage)
+    logger.info('Database access layer is creating a page')
 
     await this.docClient
       .put({
@@ -55,7 +55,7 @@ export class DatabaseAccess {
 
 
   async markPageAsCompleted(bookId: string, pageId: string, status: string, ocrCompletedAt: string): Promise<boolean> {
-    // console.log(newPage)
+
 
     var page = await this.fetchPage(bookId, pageId)
 
@@ -102,7 +102,7 @@ export class DatabaseAccess {
 
 
   async createEdit(newEdit: Edit): Promise<boolean> {
-    console.log(newEdit)
+    logger.info(newEdit)
 
     await this.docClient
       .put({
@@ -242,7 +242,6 @@ export class DatabaseAccess {
 
 
   async createLine(newLine: Line): Promise<boolean> {
-    console.log(newLine)
 
     await this.docClient
       .put({

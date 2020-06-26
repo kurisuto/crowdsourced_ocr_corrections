@@ -1,15 +1,12 @@
 import * as AWS  from 'aws-sdk'
 import * as AWSXRay from 'aws-xray-sdk'
+const XAWS = AWSXRay.captureAWS(AWS)
 
 import { createLogger } from '../utils/logger'
-
-const XAWS = AWSXRay.captureAWS(AWS)
 const logger = createLogger('ced')
 
 const pageUploadBucketName = process.env.S3_BUCKET_PAGE_UPLOAD
 const ocrOutputBucketName = process.env.S3_BUCKET_OCR_OUTPUT
-
-// const urlExpiration = parseInt(process.env.SIGNED_URL_EXPIRATION)
 const urlExpiration = process.env.SIGNED_URL_EXPIRATION
 
 
@@ -39,12 +36,7 @@ export async function writeOcrResultsToS3(pageId, ocrResults) {
       Body: jsonString,
       ContentType: 'application/json; charset=utf-8',
   }
-
-  //    ACL: 'public-read',
-  //    CacheControl: 'max-age=60'
-
-
-  console.log(request)
+  logger.info("s3 put request parameters: ", request)
 
   await new Promise((resolve, reject) => {
     s3.putObject(request, function(error, data) {
