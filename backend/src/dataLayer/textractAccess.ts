@@ -5,7 +5,6 @@ const XAWS = AWSXRay.captureAWS(AWS)
 import { createLogger } from '../utils/logger'
 const logger = createLogger('ced')
 
-
 const imageUploadBucketName = process.env.S3_BUCKET_PAGE_UPLOAD
 const textractSnsRoleArn = process.env.TEXTRACT_DONE_ROLE_ARN
 const textractSnsArn = process.env.TEXTRACT_DONE_TOPIC_ARN

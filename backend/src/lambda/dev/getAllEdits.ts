@@ -19,7 +19,6 @@ export const handler = middy(
 
   const edits = await getAllEdits()
 
-
   return {
     statusCode: 200,
     body: JSON.stringify({
@@ -31,9 +30,6 @@ export const handler = middy(
 
 
 
-
 handler
   .use(cors())
   .use(seanMiddy())
-
-

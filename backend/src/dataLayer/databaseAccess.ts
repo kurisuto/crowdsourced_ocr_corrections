@@ -1,8 +1,8 @@
 import * as AWS from 'aws-sdk'
 import * as AWSXRay from 'aws-xray-sdk'
+const XAWS = AWSXRay.captureAWS(AWS)
 
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
-const XAWS = AWSXRay.captureAWS(AWS)
 
 import { createLogger } from '../utils/logger'
 const logger = createLogger('ced')
@@ -30,6 +30,7 @@ export class DatabaseAccess {
 
 
   async getAllPages(): Promise<Page[]> {
+    logger.info('Database access layer is getting all pages.')
 
     const result = await this.docClient.scan({
       TableName: this.pageTable
@@ -40,7 +41,7 @@ export class DatabaseAccess {
 
 
   async createPage(newPage: Page): Promise<boolean> {
-    logger.info('Database access layer is creating a page')
+    logger.info('Database access layer is creating a page.')
 
     await this.docClient
       .put({
@@ -55,7 +56,7 @@ export class DatabaseAccess {
 
 
   async markPageAsCompleted(bookId: string, pageId: string, status: string, ocrCompletedAt: string): Promise<boolean> {
-
+    logger.info('Database access layer is marking a page as OCR completed.')
 
     var page = await this.fetchPage(bookId, pageId)
 
@@ -75,6 +76,7 @@ export class DatabaseAccess {
 
 
   async fetchPage(bookId: string, pageId: string): Promise<any> {
+    logger.info('Database access layer is fetching a page.')
 
     const result = await this.docClient
       .get({
@@ -102,6 +104,7 @@ export class DatabaseAccess {
 
 
   async createEdit(newEdit: Edit): Promise<boolean> {
+    logger.info('Database access layer is creating an edit.')
     logger.info(newEdit)
 
     await this.docClient
@@ -118,6 +121,7 @@ export class DatabaseAccess {
 
 
   async markEditAsRejected(bookId, editId): Promise<boolean> {
+    logger.info('Database access layer is marking an edit as rejected.')
 
     var edit = this.fetchEdit(bookId, editId)
 
@@ -136,6 +140,7 @@ export class DatabaseAccess {
 
 
   async deleteEdit(bookId: string, editId: string): Promise<boolean> {
+    logger.info('Database access layer is deleting an edit.')
 
     await this.docClient
       .delete({
@@ -152,6 +157,7 @@ export class DatabaseAccess {
 
 
   async getAllEdits(): Promise<Edit[]> {
+    logger.info('Database access layer is getting all edits.')
 
     const result = await this.docClient.scan({
       TableName: this.editTable
@@ -162,6 +168,7 @@ export class DatabaseAccess {
 
 
   async editMustExist(bookId: string, editId: string): Promise<boolean> {
+    logger.info('Database access layer is verifying that an edit exists.')
 
     const result = await this.docClient
       .get({
@@ -183,6 +190,7 @@ export class DatabaseAccess {
 
 
   async fetchEdit(bookId: string, editId: string): Promise<any> {
+    logger.info('Database access layer is fetching an edit.')
 
     const result = await this.docClient
       .get({
@@ -214,6 +222,7 @@ export class DatabaseAccess {
   pageId and have to look it up from the jobId.
   */
   async jobIdToPageId(jobId: string): Promise<any> {
+    logger.info('Database access layer is converting a Textract jobId to a pageId.  This should not happen in deployment.')
 
     const result = await this.docClient.scan({
       TableName: this.pageTable
@@ -242,6 +251,7 @@ export class DatabaseAccess {
 
 
   async createLine(newLine: Line): Promise<boolean> {
+    logger.info('Database access layer is creating a line.')
 
     await this.docClient
       .put({
@@ -256,6 +266,7 @@ export class DatabaseAccess {
 
 
   async getAllLines(): Promise<Line[]> {
+    logger.info('Database access layer is getting all lines.')
 
     const result = await this.docClient.scan({
       TableName: this.lineTable
@@ -266,6 +277,7 @@ export class DatabaseAccess {
 
 
   async lineMustExist(bookId: string, lineId: string): Promise<boolean> {
+    logger.info('Database access layer is verifying that a line exists.')
 
     const result = await this.docClient
       .get({

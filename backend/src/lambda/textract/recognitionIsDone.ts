@@ -1,9 +1,11 @@
 import 'source-map-support/register'
 import { SNSEvent, SNSHandler } from 'aws-lambda'
-import { recognitionIsDone } from '../../businessLogic/pages';
 
 import { createLogger } from '../../utils/logger'
 const logger = createLogger('ced')
+
+import { recognitionIsDone } from '../../businessLogic/pages';
+
 
 
 // When an asynchronous Textract OCR job is completed, Textract

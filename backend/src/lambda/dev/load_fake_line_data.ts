@@ -9,7 +9,6 @@ import { cors } from 'middy/middlewares'
 // @ts-ignore
 import { seanMiddy } from '../../utils/seanMiddy'
 
-
 import { loadFakeLines } from '../../businessLogic/lines';
 import { fakeLineData } from './fake_line_data.ts';
 

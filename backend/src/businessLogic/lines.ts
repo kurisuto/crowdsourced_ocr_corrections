@@ -1,10 +1,12 @@
-import { DatabaseAccess } from '../dataLayer/databaseAccess'
-const databaseAccess = new DatabaseAccess()
+import { createLogger } from '../utils/logger'
+const logger = createLogger('ced')
 
 import { Line } from '../models/Line'
 
-import { createLogger } from '../utils/logger'
-const logger = createLogger('ced')
+import { DatabaseAccess } from '../dataLayer/databaseAccess'
+const databaseAccess = new DatabaseAccess()
+
+
 
 
 export async function getAllLines(): Promise<Line[]> {

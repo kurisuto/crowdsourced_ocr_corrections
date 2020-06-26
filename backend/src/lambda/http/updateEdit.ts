@@ -1,14 +1,13 @@
 import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 
+import { createLogger } from '../../utils/logger'
+const logger = createLogger('ced')
+
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 // @ts-ignore
 import { seanMiddy } from '../../utils/seanMiddy'
-
-import { createLogger } from '../../utils/logger'
-const logger = createLogger('ced')
-
 
 import { markEditAsRejected } from '../../businessLogic/edits';
 
