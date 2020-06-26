@@ -17,14 +17,13 @@ export const handler = middy(
 
 
   const jobId = event.pathParameters.jobId
-  // const jobId = '1de72977d57f658e4e1aadf4300c7a1dd3e978e76b74774540291ad9538a6287'
 
   await recognitionIsDone(jobId)
 
   return {
     statusCode: 200,
     body: JSON.stringify({
-      'message': 'The function call is completed!!!'
+      'message': 'The function call completed successfully.'
     })
   }
 

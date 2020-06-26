@@ -13,8 +13,10 @@ export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
   console.log(event)
-  console.log('This is the test handler.')
 
+
+  // Insert code here for whatever temporary development purpose we
+  // need.
 
   return {
     statusCode: 200,
@@ -24,9 +26,6 @@ export const handler = middy(
   }
 
 })
-
-
-
 
 
 

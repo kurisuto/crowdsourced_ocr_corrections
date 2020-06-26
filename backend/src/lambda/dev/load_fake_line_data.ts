@@ -24,7 +24,7 @@ export const handler = middy(
   return {
     statusCode: 200,
     body: JSON.stringify({
-      'message': 'The function call is completed'
+      'message': 'The seed data has been loaded to the database.'
     })
   }
 

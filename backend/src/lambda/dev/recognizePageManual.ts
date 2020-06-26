@@ -21,7 +21,7 @@ export const handler = middy(
   return {
     statusCode: 200,
     body: JSON.stringify({
-      'message': 'The function call is completed'
+      'message': 'The OCR job has been submitted to Textract.'
     })
   }
 
