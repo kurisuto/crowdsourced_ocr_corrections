@@ -9,7 +9,7 @@ import { seanMiddy } from '../../utils/seanMiddy'
 import { createLogger } from '../../utils/logger'
 import { generateUploadUrl } from '../../businessLogic/pages';
 
-const logger = createLogger('todos')
+const logger = createLogger('ced')
 
 
 

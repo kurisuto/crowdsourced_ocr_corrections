@@ -9,7 +9,7 @@ import { seanMiddy } from '../../utils/seanMiddy'
 import { createLogger } from '../../utils/logger'
 import { getNextLineForEditing } from '../../businessLogic/lines';
 
-const logger = createLogger('todos')
+const logger = createLogger('ced')
 
 
 export const handler = middy( 

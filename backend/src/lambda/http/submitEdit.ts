@@ -7,10 +7,10 @@ import { cors } from 'middy/middlewares'
 import { seanMiddy } from '../../utils/seanMiddy'
 
 import { createLogger } from '../../utils/logger'
-// import { createTodoItem } from '../../businessLogic/todos';
+import { submitEdit } from '../../businessLogic/edits';
 // import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
 
-const logger = createLogger('todos')
+const logger = createLogger('ced')
 
 
 export const handler = middy( 
@@ -21,6 +21,11 @@ export const handler = middy(
   // const newTodo: CreateTodoRequest = JSON.parse(event.body)
 
   // const newItem = await createTodoItem(event.headers.userId, newTodo)
+
+  const record = JSON.parse(event.body)
+  console.log(record)
+
+  await submitEdit(event.headers.userId, record)
 
   return {
     statusCode: 201,

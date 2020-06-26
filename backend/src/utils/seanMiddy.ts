@@ -71,7 +71,7 @@ module.exports = { seanMiddy: () => ({
 
   onError: (handler, next) => {
     const Logger = require('./logger.ts')
-    const logger = Logger.createLogger('todos')
+    const logger = Logger.createLogger('ced')
 
 
     var statusCode = 500
@@ -84,7 +84,7 @@ module.exports = { seanMiddy: () => ({
 
     if (handler.error.message.startsWith('404')) {
       statusCode = 404
-      message = 'Not found.  Possibly, an invalid todoId was sent.'
+      message = 'Not found.  Possibly, an invalid id was sent.'
     }
 
     handler.response = {

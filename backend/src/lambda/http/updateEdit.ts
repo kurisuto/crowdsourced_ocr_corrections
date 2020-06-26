@@ -7,10 +7,9 @@ import { cors } from 'middy/middlewares'
 import { seanMiddy } from '../../utils/seanMiddy'
 
 import { createLogger } from '../../utils/logger'
-// import { updateTodoItem } from '../../businessLogic/todos';
-// import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
+import { markEditAsRejected } from '../../businessLogic/edits';
 
-const logger = createLogger('todos')
+const logger = createLogger('ced')
 
 
 export const handler = middy( 
@@ -18,11 +17,9 @@ export const handler = middy(
 
   logger.info(`Processing event ${JSON.stringify(event)}`)
 
-  // const todoId = event.pathParameters.todoId
-  // const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
+  const editId = event.pathParameters.editId
 
-  // @ts-ignore  We're not currently using updateItem, which is the todoItem we just updated; but it's likely we might want it in the future.
-  // const updatedItem = await updateTodoItem(event.headers.userId, todoId, updatedTodo)
+  markEditAsRejected(editId)
 
   return {
     statusCode: 200,

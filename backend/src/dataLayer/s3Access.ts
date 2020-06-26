@@ -4,7 +4,7 @@ import * as AWSXRay from 'aws-xray-sdk'
 import { createLogger } from '../utils/logger'
 
 const XAWS = AWSXRay.captureAWS(AWS)
-const logger = createLogger('todos')
+const logger = createLogger('ced')
 
 const pageUploadBucketName = process.env.S3_BUCKET_PAGE_UPLOAD
 const ocrOutputBucketName = process.env.S3_BUCKET_OCR_OUTPUT

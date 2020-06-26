@@ -9,7 +9,7 @@ import { seanMiddy } from '../../utils/seanMiddy'
 import { createLogger } from '../../utils/logger'
 import { deleteEdit } from '../../businessLogic/edits';
 
-const logger = createLogger('todos')
+const logger = createLogger('ced')
 
 
 export const handler = middy( 
@@ -19,7 +19,7 @@ export const handler = middy(
 
   const editId = event.pathParameters.editId
 
-  await deleteEdit(event.headers.userId, editId)
+  await deleteEdit(editId)
 
   return {
     statusCode: 200,

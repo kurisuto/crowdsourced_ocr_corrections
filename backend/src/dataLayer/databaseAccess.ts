@@ -2,13 +2,14 @@ import * as AWS from 'aws-sdk'
 import * as AWSXRay from 'aws-xray-sdk'
 
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
+const XAWS = AWSXRay.captureAWS(AWS)
 
 import { createLogger } from '../utils/logger'
-// import { TodoItem } from '../models/TodoItem'
-// import { TodoUpdate } from '../models/TodoUpdate'
+const logger = createLogger('ced')
 
-const XAWS = AWSXRay.captureAWS(AWS)
-const logger = createLogger('coc')
+import { Page } from '../models/Page'
+import { Edit } from '../models/Edit'
+import { Line } from '../models/Line'
 
 
 export class DatabaseAccess {
@@ -23,20 +24,22 @@ export class DatabaseAccess {
   }
 
 
+
   // ------------------------------------------------------------------
   // METHODS FOR THE PAGE TABLE
 
 
-  async getAllPages(): Promise<any> {
+  async getAllPages(): Promise<Page[]> {
 
     const result = await this.docClient.scan({
       TableName: this.pageTable
     }).promise()
 
-    return result.Items
+    return result.Items as Page[]
   }
 
-  async createPage(newPage): Promise<boolean> {
+
+  async createPage(newPage: Page): Promise<boolean> {
     console.log(newPage)
 
     await this.docClient
@@ -83,6 +86,10 @@ export class DatabaseAccess {
       })
       .promise()
 
+    if (!result.Item) {
+      throw new Error("404 no_such_item")
+    }
+
     return result.Item
   }
 
@@ -94,13 +101,32 @@ export class DatabaseAccess {
   // METHODS FOR THE EDIT TABLE
 
 
-  async createEdit(newEdit): Promise<boolean> {
+  async createEdit(newEdit: Edit): Promise<boolean> {
     console.log(newEdit)
 
     await this.docClient
       .put({
         TableName: this.editTable,
         Item: newEdit
+      })
+      .promise()
+
+
+    return true     
+  }
+
+
+
+  async markEditAsRejected(bookId, editId): Promise<boolean> {
+
+    var edit = this.fetchEdit(bookId, editId)
+
+    edit['rejected'] = true
+
+    await this.docClient
+      .put({
+        TableName: this.editTable,
+        Item: edit
       })
       .promise()
 
@@ -125,52 +151,84 @@ export class DatabaseAccess {
   }
 
 
-  async getAllEdits(): Promise<any> {
+  async getAllEdits(): Promise<Edit[]> {
 
     const result = await this.docClient.scan({
       TableName: this.editTable
     }).promise()
 
-    return result.Items
+    return result.Items as Edit[]
+  }
+
+
+  async editMustExist(bookId: string, editId: string): Promise<boolean> {
+
+    const result = await this.docClient
+      .get({
+        TableName: this.editTable,
+        Key: {
+          editId: editId,
+          bookId: bookId
+        }
+      })
+      .promise()
+
+
+    if (!result.Item) {
+      throw new Error("404 no_such_item")
+    }
+
+    return true
+  }
+
+
+  async fetchEdit(bookId: string, editId: string): Promise<any> {
+
+    const result = await this.docClient
+      .get({
+        TableName: this.editTable,
+        Key: {
+          bookId: bookId,
+          editId: editId
+        }
+      })
+      .promise()
+
+    return result.Item
   }
 
 
 
-
   /*
+  The following method does an inefficient scan.  The method is
+  only for development purposes, so it's not worth setting up
+  a separate index for this lookup.
 
-  The following function is not efficient at all.  It's just for code
-  development purposes when there's only a small amount of data in the
-  database.
+  The way the fully-implemented app works is that Textract sends an
+  SNS event to the recognitionIsDone Lambda function.  This event
+  contains the pageId, so we don't normally have to look it up from
+  the Textract jobId.
 
-  Under the normal flow, when a Textract job finished, it sends an SNS
-  event containing a JobId which we can then use to retrieve the
-  recognized text.  However, when we're running in an sls offline
-  environment, we don't get that event, so we have to simulate it with
-  a special HTTP GET which we use only for development purposes, not
-  as part of the deployed app.  Since we don't get the Textract JobId...
-
-  Does that mechanism actually work?  Need to check.
-
+  For development purposes, though, we can also manually kick off
+  recognitionIsDone with an http GET.  In that case, we don't know the
+  pageId and have to look it up from the jobId.
   */
-
-  // This is not an efficient call, but it's only for development
-  // purposes.  Normally, we send the pageId as the JobTag field when we
-  // submit the Textract job, so we can just get it from the SNS event
-  // under the normal flow.
   async jobIdToPageId(jobId: string): Promise<any> {
 
     const result = await this.docClient.scan({
       TableName: this.pageTable
     }).promise()
 
-    var pageId
+    var pageId = "none"
 
     for (const item of result.Items) {
       if (item.jobId == jobId) {
         pageId = item.pageId
       }
+    }
 
+    if (pageId == "none") {
+      throw new Error("404 no_such_item")
     }
 
     return pageId
@@ -183,7 +241,7 @@ export class DatabaseAccess {
   // METHODS FOR THE LINE TABLE
 
 
-  async createLine(newLine): Promise<boolean> {
+  async createLine(newLine: Line): Promise<boolean> {
     console.log(newLine)
 
     await this.docClient
@@ -198,17 +256,44 @@ export class DatabaseAccess {
   }
 
 
-  async getAllLines(): Promise<any> {
+  async getAllLines(): Promise<Line[]> {
 
     const result = await this.docClient.scan({
       TableName: this.lineTable
     }).promise()
 
-    return result.Items
+    return result.Items as Line[]
   }
 
 
+  async lineMustExist(bookId: string, lineId: string): Promise<boolean> {
+
+    const result = await this.docClient
+      .get({
+        TableName: this.lineTable,
+        Key: {
+          lineId: lineId,
+          bookId: bookId
+        }
+      })
+      .promise()
+
+
+    if (!result.Item) {
+      throw new Error("404 no_such_item")
+    }
+
+    return true
+  }
+
+
+
 }
+
+
+// END OF CLASS DatabaseAccess
+// ------------------------------------------------------------------
+
 
 
 function createDynamoDBClient() {

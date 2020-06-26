@@ -6,7 +6,7 @@ import { verify } from 'jsonwebtoken'
 import { createLogger } from '../../utils/logger'
 import { JwtPayload } from '../../auth/JwtPayload'
 
-const logger = createLogger('todos')
+const logger = createLogger('ced')
 
 
 const cert = `-----BEGIN CERTIFICATE-----
