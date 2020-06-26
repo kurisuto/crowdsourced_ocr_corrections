@@ -20,11 +20,11 @@ export const handler = middy(
 
   logger.info(`Processing event ${JSON.stringify(event)}`)
 
+  // First submit the edit which the user just completed.
   const record: SubmitEditRequest = JSON.parse(event.body)
-  logger.info(record)
-
   await submitEdit(event.headers.userId, record)
 
+  // Then send back the next line for the user to edit.
   const line = await getNextLineForEditing(event.headers.userId)
 
   return {

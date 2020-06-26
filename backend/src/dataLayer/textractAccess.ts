@@ -9,10 +9,6 @@ const imageUploadBucketName = process.env.S3_BUCKET_PAGE_UPLOAD
 const textractSnsRoleArn = process.env.TEXTRACT_DONE_ROLE_ARN
 const textractSnsArn = process.env.TEXTRACT_DONE_TOPIC_ARN
 
-// TODO: Remove these:
-// const textractSnsRoleArn = 'arn:aws:iam::424780530116:role/TempAdminRole'
-// const textractSnsArn = 'arn:aws:sns:us-east-1:424780530116:textractDoneTopic-dev'
-
 
 
 const textract = new XAWS.Textract({

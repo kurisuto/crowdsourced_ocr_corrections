@@ -1,3 +1,14 @@
+/*
+
+This module is imported by the load_fake_lines_data.ts HTTP handler.
+
+This is stub data which was created offline.  It is standing in for
+parts of the system which haven't been built out for the capstone
+project.
+
+*/
+
+
 export const fakeLineData = `
 [
     {

@@ -36,7 +36,7 @@ export async function writeOcrResultsToS3(pageId, ocrResults) {
       Body: jsonString,
       ContentType: 'application/json; charset=utf-8',
   }
-  logger.info("s3 put request parameters: ", request)
+  logger.info("s3 put request parameters: " + request)
 
   await new Promise((resolve, reject) => {
     s3.putObject(request, function(error, data) {

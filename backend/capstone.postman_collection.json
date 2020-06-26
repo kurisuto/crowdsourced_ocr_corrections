@@ -1,0 +1,462 @@
+{
+	"info": {
+		"_postman_id": "aa5953c7-ae65-4829-838c-dbaf1315f7cc",
+		"name": "Capstone",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Tests",
+			"item": [
+				{
+					"name": "Get URL for image upload",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://localhost:3003/todos/3836b777-9bc4-4429-9b79-ba4e4f5f91c0/attachment",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "3003",
+							"path": [
+								"todos",
+								"3836b777-9bc4-4429-9b79-ba4e4f5f91c0",
+								"attachment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all pages",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"todos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get next line for correction",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"todos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Submit edited line",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"lineId\": \"8aa73833-4836-4d47-988f-a06bee6e0a20\", \n\t\"correctedText\": \"second day I awoke and found the balloon floating over a\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:3003/edit",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3003",
+							"path": [
+								"edit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Mark edit record as rejected",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"lineId\": {\n\t\t\"text\": \"1\",\n\t\t\"page\": \"179\",\n\t\t\"line\": \"3\"\n\t},\t\"dueDate\": \"2019-12-11\",\n\t\"rejected\": true\n}"
+						},
+						"url": {
+							"raw": "https://localhost:3003/line/35dd600f-43c2-4649-903c-615e1586a26f",
+							"protocol": "https",
+							"host": [
+								"localhost"
+							],
+							"port": "3003",
+							"path": [
+								"line",
+								"35dd600f-43c2-4649-903c-615e1586a26f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete edit record",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:3003/todos/a6202e29-e894-4806-a5be-fa40f865bc4a",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3003",
+							"path": [
+								"todos",
+								"a6202e29-e894-4806-a5be-fa40f865bc4a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload image",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "511e0bde-bb2e-41cd-a449-7df550a66be5",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "0a00097f-6bf8-4759-b4a0-629f0732ca4b",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Developer functions",
+			"item": [
+				{
+					"name": "Load mocked-up stub data",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"todos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Start OCR manually",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"todos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Process completed OCR manually",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"todos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all lines",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"todos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all edits",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"todos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test handler",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"todos"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "These API endpoints would not be exposed in an actual implementation.  They are here for development purposes.",
+			"protocolProfileBehavior": {}
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "94ded83c-84ff-4a79-9051-379373c95a69",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "189c28e7-c734-4991-a12a-09fb883f2cd1",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "36975e9f-1469-4c84-b9ea-164de0bbd2b0",
+			"key": "apiId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "7b5d1d17-c841-4053-b84b-e15b34fd89d9",
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

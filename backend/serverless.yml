@@ -1,5 +1,5 @@
 service:
-  name: coc3
+  name: cedit
 
 plugins:
   - serverless-webpack
@@ -26,15 +26,15 @@ provider:
 
   environment:
     SIGNED_URL_EXPIRATION: 300
-    TABLE_PAGE: COC-Page-${self:provider.stage}
-    TABLE_LINE: COC-Line-${self:provider.stage}
-    TABLE_EDIT: COC-Edit-${self:provider.stage}
-    S3_BUCKET_PAGE_UPLOAD: coc-page-upload-424780530116-${self:provider.stage}
-    S3_BUCKET_OCR_OUTPUT: coc-ocr-output-424780530116-${self:provider.stage}
-    S3_BUCKET_LINE_IMAGES: coc-line-images-424780530116-${self:provider.stage}
+    TABLE_PAGE: cedit-Page-${self:provider.stage}
+    TABLE_LINE: cedit-Line-${self:provider.stage}
+    TABLE_EDIT: cedit-Edit-${self:provider.stage}
+    S3_BUCKET_PAGE_UPLOAD: cedit-page-upload-424780530116-${self:provider.stage}
+    S3_BUCKET_OCR_OUTPUT: cedit-ocr-output-424780530116-${self:provider.stage}
+    S3_BUCKET_LINE_IMAGES: cedit-line-images-424780530116-${self:provider.stage}
     AWS_XRAY_CONTEXT_MISSING: 'LOG_ERROR'
-    TEXTRACT_DONE_ROLE_ARN: arn:aws:iam::424780530116:role/COC-TextractDoneRole-${self:provider.stage}
-    TEXTRACT_DONE_TOPIC_ARN: arn:aws:sns:us-east-1:424780530116:COC-TextractDoneTopic-${self:provider.stage}
+    TEXTRACT_DONE_ROLE_ARN: arn:aws:iam::424780530116:role/cedit-TextractDoneRole-${self:provider.stage}
+    TEXTRACT_DONE_TOPIC_ARN: arn:aws:sns:us-east-1:424780530116:cedit-TextractDoneTopic-${self:provider.stage}
 
 
 #  iamRoleStatements:
@@ -131,7 +131,7 @@ functions:
     events:
       - http:
           method: get
-          path: recognizepagemanual
+          path: recognizepagemanual/{key}
           cors: true
     iamRoleStatements:
       - Effect: Allow
@@ -414,7 +414,7 @@ functions:
 
 
 custom:
-  textractDoneTopicName: COC-TextractDoneTopic-${self:provider.stage}
+  textractDoneTopicName: cedit-TextractDoneTopic-${self:provider.stage}
 
   serverless-offline:
     port: 3003
@@ -529,7 +529,7 @@ resources:
     TextractDoneRole:
       Type: AWS::IAM::Role
       Properties:
-        RoleName: COC-TextractDoneRole-${self:provider.stage}
+        RoleName: cedit-TextractDoneRole-${self:provider.stage}
         Path: /
         AssumeRolePolicyDocument:
           Version: '2012-10-17'
@@ -538,10 +538,11 @@ resources:
               Principal:
                 Service:
                   - textract.amazonaws.com
+                  - lambda.amazonaws.com
               Action: 
                 - sts:AssumeRole
         Policies:
-          - PolicyName: COC-TextractDonePolicyName-${self:provider.stage}
+          - PolicyName: cedit-TextractDonePolicyName-${self:provider.stage}
             PolicyDocument:
               Version: '2012-10-17'
               Statement:
@@ -651,6 +652,11 @@ resources:
                 - DELETE
                 - HEAD
               MaxAge: 3000
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          BlockPublicPolicy: false
+          IgnorePublicAcls: false
+          RestrictPublicBuckets: false
 
     LineImagesBucketPolicy:
       Type: AWS::S3::BucketPolicy

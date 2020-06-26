@@ -8,6 +8,19 @@ const databaseAccess = new DatabaseAccess()
 
 
 
+/*
+Note on the bookId parameter:
+
+In a full implementation, we would be correcting many books, so we'd
+have a Book database table with a bookId key.  This isn't implemented
+for the current captone project, but I went ahead and included a
+placeholder bookId parameter or field in places where we would want
+it.  I just filled it in with the dummy constant '1' everywhere.
+*/
+const dummyBookId = '1'
+
+
+
 export async function getAllEdits(): Promise<Edit[]> {
   const edits = await databaseAccess.getAllEdits()
   return edits
@@ -16,7 +29,7 @@ export async function getAllEdits(): Promise<Edit[]> {
 
 export async function submitEdit(userId: string, record: SubmitEditRequest): Promise<any> {
 
-  const bookId = '1'
+  const bookId = dummyBookId
   const lineId = record['lineId']
   const editId = uuid.v4()
   const submittedAt = new Date().toISOString()
@@ -26,7 +39,7 @@ export async function submitEdit(userId: string, record: SubmitEditRequest): Pro
 
 
   const newEdit = {
-    bookId: '1',
+    bookId: dummyBookId,
     editId,
     lineId,
     userId,
@@ -42,7 +55,7 @@ export async function submitEdit(userId: string, record: SubmitEditRequest): Pro
 
 
 export async function markEditAsRejected(editId: string): Promise<boolean> {
-  const bookId = '1'
+  const bookId = dummyBookId
   await databaseAccess.editMustExist(bookId, editId)
   await databaseAccess.markEditAsRejected(bookId, editId)
   return true
@@ -51,7 +64,7 @@ export async function markEditAsRejected(editId: string): Promise<boolean> {
 
 
 export async function deleteEdit(editId: string): Promise<boolean> {
-  const bookId = '1'
+  const bookId = dummyBookId
   await databaseAccess.editMustExist(bookId, editId)
   await databaseAccess.deleteEdit(bookId, editId)
   return true
@@ -68,7 +81,7 @@ export async function makeFakeEdit(): Promise<boolean> {
   const correctedText = 'but the Tin Woodman did not believe'
 
   const newEdit = {
-    bookId: '1',
+    bookId: dummyBookId,
     editId,
     lineId,
     userId,

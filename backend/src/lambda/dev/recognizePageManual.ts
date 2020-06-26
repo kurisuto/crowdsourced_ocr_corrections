@@ -17,9 +17,9 @@ export const handler = middy(
 
   logger.info(event)
 
-  const imageFilename = 'wizard_of_oz_179.jpg'
+  const key = event.pathParameters.key
 
-  await startOcr(event.headers.userId, imageFilename)
+  await startOcr(event.headers.userId, key)
 
   return {
     statusCode: 200,

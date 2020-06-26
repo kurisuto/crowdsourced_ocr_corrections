@@ -34,7 +34,7 @@ O80mIVBYCo2LvAMv03z0ky8qaI5Ipg3KYS4OzB/OXdm8wVgAQ/Ifvwx+oclGpWas
 export const handler = async (event: CustomAuthorizerEvent): Promise<CustomAuthorizerResult> => {
   try {
     const jwtPayload = verifyToken(event.authorizationToken)
-    logger.info('User was authorized', jwtPayload)
+    logger.info('User was authorized' + jwtPayload)
 
     return {
       principalId: jwtPayload.sub,

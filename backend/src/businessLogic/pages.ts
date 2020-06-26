@@ -13,6 +13,9 @@ import { submitOcr, fetchOcrResults } from '../dataLayer/textractAccess'
 // Set up our access to the database
 const databaseAccess = new DatabaseAccess()
 
+// See edits.ts for comments on dummyBookId.
+const dummyBookId = '1'
+
 
 
 export async function generateUploadUrl(): Promise<string> {
@@ -46,7 +49,7 @@ export async function startOcr(userId: string, imageFilename: string): Promise<b
 
   // Create a database entry about this new page
   const newPage = {
-    bookId: '1',
+    bookId: dummyBookId,
     pageId,
     userId,
     imageFilename,
@@ -65,7 +68,7 @@ export async function startOcr(userId: string, imageFilename: string): Promise<b
 
 export async function recognitionIsDone(jobId: string): Promise<any> {
 
-  const bookId = '1'
+  const bookId = dummyBookId
   const status = 'completed'
   const ocrCompletedAt = new Date().toISOString()
 
@@ -91,7 +94,7 @@ export async function recognitionIsDone(jobId: string): Promise<any> {
   if (typeof(pageId) == "undefined") {
     pageId = await databaseAccess.jobIdToPageId(jobId)
   }
-  logger.info("Determined the following pageId correponding to this OCR job: ", pageId)
+  logger.info("Determined the following pageId correponding to this OCR job: " + pageId)
 
 
 

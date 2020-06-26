@@ -7,6 +7,9 @@ import { DatabaseAccess } from '../dataLayer/databaseAccess'
 const databaseAccess = new DatabaseAccess()
 
 
+// See edits.ts for comments on dummyBookId.
+const dummyBookId = '1'
+
 
 
 export async function getAllLines(): Promise<Line[]> {
@@ -14,8 +17,8 @@ export async function getAllLines(): Promise<Line[]> {
   return lines
 }
 
-/*
 
+/*
 Following is a stub implementation of the process to assign the next
 line to a user.  In a full implementation, this decision-making
 process would be very complicated.  It would involve the following:
@@ -33,15 +36,15 @@ process would be very complicated.  It would involve the following:
 The current stub implementation simply randomly selects a line from
 the mocked-up data.
 
+We go ahead and accept a userId parameter since we'd definitely
+need it for a full implementation, but we currently just log it
+to absorb the compiler warning about an unused variable.
 */
+
 export async function getNextLineForEditing(userId: string): Promise<any> {
   const lines = await databaseAccess.getAllLines()
 
-  // For an actual implementation, we'd definitely need to
-  // know who this user is, so we'll leave it in the function
-  // arguments.  The following line just absorbs the unused
-  // variable warning.
-  logger.info("userId: ", userId)
+  logger.info("userId: " + userId)
 
   var line = lines[Math.floor(Math.random() * lines.length)];
 
@@ -63,7 +66,7 @@ export async function getNextLineForEditing(userId: string): Promise<any> {
 export async function loadFakeLines(lines): Promise<boolean> {
 
   for (var line of lines) {
-    line['bookId'] = '1'
+    line['bookId'] = dummyBookId
     await databaseAccess.createLine(line)
   }
 

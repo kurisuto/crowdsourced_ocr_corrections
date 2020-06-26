@@ -20,7 +20,7 @@ export const handler = middy(
 
   const editId = event.pathParameters.editId
 
-  markEditAsRejected(editId)
+  await markEditAsRejected(editId)
 
   return {
     statusCode: 200,

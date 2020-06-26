@@ -12,6 +12,13 @@ import { seanMiddy } from '../../utils/seanMiddy'
 import { getAllPages } from '../../businessLogic/pages';
 
 
+/*
+In a full implementation, we would paginate the results
+from the database.  Since we'll do OCR only on a small
+number of test pages, I've kept this simple for demonstration
+purposes.
+*/
+
 
 export const handler = middy( 
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -27,8 +34,6 @@ export const handler = middy(
   }
 
 })
-
-
 
 
 handler

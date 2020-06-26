@@ -123,8 +123,7 @@ export class DatabaseAccess {
   async markEditAsRejected(bookId, editId): Promise<boolean> {
     logger.info('Database access layer is marking an edit as rejected.')
 
-    var edit = this.fetchEdit(bookId, editId)
-
+    var edit = await this.fetchEdit(bookId, editId)
     edit['rejected'] = true
 
     await this.docClient
@@ -133,7 +132,6 @@ export class DatabaseAccess {
         Item: edit
       })
       .promise()
-
 
     return true     
   }
@@ -189,7 +187,7 @@ export class DatabaseAccess {
   }
 
 
-  async fetchEdit(bookId: string, editId: string): Promise<any> {
+  async fetchEdit(bookId: string, editId: string): Promise<Edit> {
     logger.info('Database access layer is fetching an edit.')
 
     const result = await this.docClient
@@ -202,14 +200,14 @@ export class DatabaseAccess {
       })
       .promise()
 
-    return result.Item
+    return result.Item as Edit
   }
 
 
 
   /*
   The following method does an inefficient scan.  The method is
-  only for development purposes, so it's not worth setting up
+  for development purposes only, so it's not worth setting up
   a separate index for this lookup.
 
   The way the fully-implemented app works is that Textract sends an
@@ -218,9 +216,13 @@ export class DatabaseAccess {
   the Textract jobId.
 
   For development purposes, though, we can also manually kick off
-  recognitionIsDone with an http GET.  In that case, we don't know the
-  pageId and have to look it up from the jobId.
+  recognitionIsDone with an http GET, so that we can run the
+  individual components without having the whole pipeline set up.  In
+  that case, we don't know the pageId and have to look it up from the
+  jobId.  
   */
+
+
   async jobIdToPageId(jobId: string): Promise<any> {
     logger.info('Database access layer is converting a Textract jobId to a pageId.  This should not happen in deployment.')
 
@@ -251,7 +253,9 @@ export class DatabaseAccess {
 
 
   async createLine(newLine: Line): Promise<boolean> {
-    logger.info('Database access layer is creating a line.')
+    // logger.info('Database access layer is creating a line.')
+    // Disabling logging here to avoid logging hundreds of messages
+    // when loading the mocked-up stub data
 
     await this.docClient
       .put({

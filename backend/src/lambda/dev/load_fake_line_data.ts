@@ -34,9 +34,6 @@ export const handler = middy(
 
 
 
-
-
-
 handler
   .use(cors())
   .use(seanMiddy())
