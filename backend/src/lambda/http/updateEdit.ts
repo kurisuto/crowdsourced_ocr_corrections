@@ -7,9 +7,11 @@ import { cors } from 'middy/middlewares'
 import { seanMiddy } from '../../utils/seanMiddy'
 
 import { createLogger } from '../../utils/logger'
+const logger = createLogger('ced')
+
+
 import { markEditAsRejected } from '../../businessLogic/edits';
 
-const logger = createLogger('ced')
 
 
 export const handler = middy( 

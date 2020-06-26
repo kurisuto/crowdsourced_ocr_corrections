@@ -1,6 +1,7 @@
 import * as uuid from 'uuid'
 
 import { Edit } from '../models/Edit'
+import { SubmitEditRequest } from '../requests/SubmitEditRequest'
 
 import { DatabaseAccess } from '../dataLayer/databaseAccess'
 const databaseAccess = new DatabaseAccess()
@@ -13,7 +14,7 @@ export async function getAllEdits(): Promise<Edit[]> {
 }
 
 
-export async function submitEdit(userId: string, record: object): Promise<any> {
+export async function submitEdit(userId: string, record: SubmitEditRequest): Promise<any> {
 
   const bookId = '1'
   const lineId = record['lineId']

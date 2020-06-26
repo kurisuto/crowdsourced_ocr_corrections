@@ -8,7 +8,7 @@ import { seanMiddy } from '../../utils/seanMiddy'
 
 import { createLogger } from '../../utils/logger'
 import { submitEdit } from '../../businessLogic/edits';
-// import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
+import { SubmitEditRequest } from '../../requests/SubmitEditRequest'
 
 const logger = createLogger('ced')
 
@@ -18,11 +18,7 @@ export const handler = middy(
 
   logger.info(`Processing event ${JSON.stringify(event)}`)
 
-  // const newTodo: CreateTodoRequest = JSON.parse(event.body)
-
-  // const newItem = await createTodoItem(event.headers.userId, newTodo)
-
-  const record = JSON.parse(event.body)
+  const record: SubmitEditRequest = JSON.parse(event.body)
   console.log(record)
 
   await submitEdit(event.headers.userId, record)
