@@ -1,4 +1,7 @@
-# Crowdsourced OCR Corrections
+# CollaborEdit
+
+![Alt text](images/logo_large_200.png?raw=true "Logo")
+
 
 This project is submitted as my capstone student project for Udacity
 Cloud Computing course.
@@ -49,6 +52,9 @@ I left some parts of the system unimplemented, or implemented only stub
 logic as needed.  These were generally parts of the system which don't
 heavily exercise cloud computing skills, such as the complicated logic
 for assigning specific lines to text to specific volunteers.
+
+
+## Portions implemented for Capstone project
 
 Here is an overview of two portions that I implemented.
 
