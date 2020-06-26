@@ -5,7 +5,7 @@ import * as uuid from 'uuid'
 
 // Data abstraction layer
 import { DatabaseAccess } from '../dataLayer/databaseAccess'
-import { writeOcrResultsToS3 } from '../dataLayer/s3Access'
+import { getUploadUrl, writeOcrResultsToS3 } from '../dataLayer/s3Access'
 import { submitOcr, fetchOcrResults } from '../dataLayer/textractAccess'
 
 
@@ -18,8 +18,26 @@ import { submitOcr, fetchOcrResults } from '../dataLayer/textractAccess'
 
 // Set up our access to the database
 const databaseAccess = new DatabaseAccess()
-// const s3Access = new S3Access()
-// const textractAccess = new TextractAccess()
+
+
+
+export async function generateUploadUrl(): Promise<string> {
+
+  const imageId = uuid.v4()
+  const uploadUrl = getUploadUrl(imageId)
+
+
+  return uploadUrl
+}
+
+
+
+export async function getAllPages(): Promise<any> {
+
+  const pages = await databaseAccess.getAllPages()
+
+  return pages
+}
 
 
 
@@ -50,12 +68,6 @@ export async function startOcr(userId: string, imageFilename: string): Promise<b
 }
 
 
-export async function getAllPages(): Promise<any> {
-
-  const pages = await databaseAccess.getAllPages()
-
-  return pages
-}
 
 
 export async function recognitionIsDone(jobId: string): Promise<any> {

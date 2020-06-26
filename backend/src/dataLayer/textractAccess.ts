@@ -8,8 +8,12 @@ const logger = createLogger('todos')
 
 const imageUploadBucketName = process.env.S3_BUCKET_PAGE_UPLOAD
 
-const textractSnsRoleArn = 'arn:aws:iam::424780530116:role/TempAdminRole'
-const textractSnsArn = 'arn:aws:sns:us-east-1:424780530116:textractDoneTopic-dev'
+//const textractSnsRoleArn = 'arn:aws:iam::424780530116:role/TempAdminRole'
+// const textractSnsArn = 'arn:aws:sns:us-east-1:424780530116:textractDoneTopic-dev'
+// arn:aws:sns:us-east-1:424780530116:COC-TextractDoneTopic-dev
+
+const textractSnsRoleArn = process.env.TEXTRACT_DONE_ROLE_ARN
+const textractSnsArn = process.env.TEXTRACT_DONE_TOPIC_ARN
 
 
 const textract = new XAWS.Textract({

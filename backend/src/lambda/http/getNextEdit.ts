@@ -7,7 +7,7 @@ import { cors } from 'middy/middlewares'
 import { seanMiddy } from '../../utils/seanMiddy'
 
 import { createLogger } from '../../utils/logger'
-// import { getAllTodoItems } from '../../businessLogic/todos';
+import { getNextLineForEditing } from '../../businessLogic/lines';
 
 const logger = createLogger('todos')
 
@@ -17,12 +17,12 @@ export const handler = middy(
 
   logger.info(`Processing event ${JSON.stringify(event)}`)
 
-  // const todos = await getAllTodoItems(event.headers.userId)
+  const line = await getNextLineForEditing(event.headers.userId)
 
   return {
     statusCode: 200,
     body: JSON.stringify({
-      items: 'Shucks'
+      items: line
     })
   }
 

@@ -25,139 +25,35 @@ provider:
     apiGateway: true
 
   environment:
+    SIGNED_URL_EXPIRATION: 300
     TABLE_PAGE: COC-Page-${self:provider.stage}
     TABLE_LINE: COC-Line-${self:provider.stage}
     TABLE_EDIT: COC-Edit-${self:provider.stage}
     S3_BUCKET_PAGE_UPLOAD: coc-page-upload-424780530116-${self:provider.stage}
     S3_BUCKET_OCR_OUTPUT: coc-ocr-output-424780530116-${self:provider.stage}
     S3_BUCKET_LINE_IMAGES: coc-line-images-424780530116-${self:provider.stage}
-    SIGNED_URL_EXPIRATION: 300
     AWS_XRAY_CONTEXT_MISSING: 'LOG_ERROR'
+    TEXTRACT_DONE_ROLE_ARN: arn:aws:iam::424780530116:role/COC-TextractDoneRole-${self:provider.stage}
+    TEXTRACT_DONE_TOPIC_ARN: arn:aws:sns:us-east-1:424780530116:COC-TextractDoneTopic-${self:provider.stage}
 
-  iamRoleStatements:
-    - Effect: "Allow"
-      Action:
-        - "s3:GetBucketNotification"
-        - "s3:PutBucketNotification"
-      Resource: 'arn:aws:s3:::${self:provider.environment.S3_BUCKET_PAGE_UPLOAD}/*'
+
+#  iamRoleStatements:
+#    - Effect: "Allow"
+#      Action:
+#        - "s3:GetBucketNotification"
+#        - "s3:PutBucketNotification"
+#      Resource: 'arn:aws:s3:::${self:provider.environment.S3_BUCKET_PAGE_UPLOAD}/*'
 
 functions:
 
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
 
-  GetLine:
-    handler: src/lambda/http/getLine.handler
-    events:
-      - http:
-          method: get
-          path: line
-          cors: true
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
-      - Effect: 'Allow' # xray permissions (required)
-        Action:
-          - xray:PutTraceSegments
-          - xray:PutTelemetryRecords
-        Resource:
-          - '*'
+  # The functions are divided into three main groups:
+  # Pages, Lines, and Edits
 
-  SubmitLine:
-    handler: src/lambda/http/submitLine.handler
-    events:
-      - http:
-          method: post
-          path: line
-          cors: true
-          reqValidatorName: RequestBodyValidator
-          documentation:
-            summary: Submit an edited line
-            description: Submit an edited line
-            requestModels:
-              'application/json': SubmitLineRequest
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:PutItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
-      - Effect: 'Allow' # xray permissions (required)
-        Action:
-          - xray:PutTraceSegments
-          - xray:PutTelemetryRecords
-        Resource:
-          - '*'
-
-  UpdateLineEdit:
-    handler: src/lambda/http/updateLineEdit.handler
-    events:
-      - http:
-          method: patch
-          path: line/{lineEditId}
-          cors: true
-          reqValidatorName: RequestBodyValidator
-          documentation:
-            summary: Update line edit item
-            description: Update line edit item
-            requestModels:
-              'application/json': UpdateLineEditRequest
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:PutItem
-          - dynamodb:GetItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
-      - Effect: 'Allow' # xray permissions (required)
-        Action:
-          - xray:PutTraceSegments
-          - xray:PutTelemetryRecords
-        Resource:
-          - '*'
-
-  DeleteLineEdit:
-    handler: src/lambda/http/deleteLineEdit.handler
-    events:
-      - http:
-          method: delete
-          path: edit/{editId}
-          cors: true
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:GetItem
-          - dynamodb:DeleteItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
-      - Effect: 'Allow' # xray permissions (required)
-        Action:
-          - xray:PutTraceSegments
-          - xray:PutTelemetryRecords
-        Resource:
-          - '*'
-
-
-  GetAllEdits:
-    handler: src/lambda/http/getAllEdits.handler
-    events:
-      - http:
-          method: get
-          path: getalledits
-          cors: true
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:PutItem
-          - dynamodb:GetItem
-          - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_EDIT}
-      - Effect: 'Allow' # xray permissions (required)
-        Action:
-          - xray:PutTraceSegments
-          - xray:PutTelemetryRecords
-        Resource:
-          - '*'
-
+  # ----------------------------------------------------
+  # PAGE FUNCTIONS
 
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
@@ -167,12 +63,6 @@ functions:
           path: pageupload
           cors: true
     iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - dynamodb:PutItem
-          - dynamodb:GetItem
-          - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
       - Effect: 'Allow' # xray permissions (required)
         Action:
           - xray:PutTraceSegments
@@ -191,9 +81,7 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - dynamodb:PutItem
-          - dynamodb:GetItem
-          - dynamodb:Query
+          - dynamodb:*
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
       - Effect: 'Allow' # xray permissions (required)
         Action:
@@ -203,19 +91,20 @@ functions:
           - '*'
 
 
+  # This function is triggered when an image file is uploaded to the
+  # incoming s3 bucket.
   RecognizePage:
     handler: src/lambda/s3/recognizePage.handler
     events:
-      - existingS3:
+      - s3:
           bucket: ${self:provider.environment.S3_BUCKET_PAGE_UPLOAD}
           events:
             - s3:ObjectCreated:*
+          existing: true
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - dynamodb:PutItem
-          - dynamodb:GetItem
-          - dynamodb:Query
+          - dynamodb:*
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
       - Effect: 'Allow' # xray permissions (required)
         Action:
@@ -235,6 +124,8 @@ functions:
         Resource: 'arn:aws:s3:::${self:provider.environment.S3_BUCKET_PAGE_UPLOAD}/*'
 
 
+  # This function does the same thing as RecognizePage, but it can be kicked
+  # off manually with an http hit for development purposes.
   RecognizePageManual:
     handler: src/lambda/dev/recognizePageManual.handler
     events:
@@ -262,7 +153,7 @@ functions:
           - '*'
 
 
-
+  # When Textract is done, it sends an SNS event which kicks off this function.
   RecognitionIsDone:
     handler: src/lambda/textract/recognitionIsDone.handler
     events:
@@ -279,7 +170,6 @@ functions:
       - Effect: Allow
         Action:
           - s3:PutObject
-          - s3:GetObject
         Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET_OCR_OUTPUT}/*
       - Effect: 'Allow' # xray permissions (required)
         Action:
@@ -294,19 +184,12 @@ functions:
           - '*'
       - Effect: Allow
         Action:
-          - dynamodb:PutItem
-          - dynamodb:GetItem
-          - dynamodb:Query
-          - dynamodb:Scan
+          - dynamodb:*
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
 
-# The following didn't solve my problem.
-#      - Effect: Allow
-#        Action: "sts:AssumeRole"
-#        Principal:
-#          Service:
-#            - lambda.amazonaws.com
 
+  # This function does the same thing as RecognitionIsDone, but it can
+  # be kicked off manually with an http hit for development purposes.
   RecognitionIsDoneManual:
     handler: src/lambda/dev/recognitionIsDoneManual.handler
     events:
@@ -318,7 +201,6 @@ functions:
       - Effect: Allow
         Action:
           - s3:PutObject
-          - s3:GetObject
         Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET_OCR_OUTPUT}/*
       - Effect: 'Allow' # xray permissions (required)
         Action:
@@ -333,16 +215,17 @@ functions:
           - '*'
       - Effect: Allow
         Action:
-          - dynamodb:PutItem
-          - dynamodb:GetItem
-          - dynamodb:Query
-          - dynamodb:Scan
+          - dynamodb:*
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
 
 
 
+  # ----------------------------------------------------
+  # LINE FUNCTIONS
+
+  # This is currently only for development purposes.
   GetAllLines:
-    handler: src/lambda/http/getAllLines.handler
+    handler: src/lambda/dev/getAllLines.handler
     events:
       - http:
           method: get
@@ -351,9 +234,7 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - dynamodb:PutItem
-          - dynamodb:GetItem
-          - dynamodb:Query
+          - dynamodb:*
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_LINE}
       - Effect: 'Allow' # xray permissions (required)
         Action:
@@ -362,7 +243,10 @@ functions:
         Resource:
           - '*'
 
-
+  # This is also for development purposes.  It's a stub which
+  # seeds the Line table with mocked-up data.  In a full implementation,
+  # this data would be loaded automatically when OCR is completed on
+  # a page.
   LoadFakeLineData:
     handler: src/lambda/dev/load_fake_line_data.handler
     events:
@@ -373,9 +257,7 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - dynamodb:PutItem
-          - dynamodb:GetItem
-          - dynamodb:Query
+          - dynamodb:*
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_LINE}
       - Effect: 'Allow' # xray permissions (required)
         Action:
@@ -386,6 +268,136 @@ functions:
 
 
 
+  # ----------------------------------------------------
+  # EDIT FUNCTIONS
+
+
+
+  GetNextEdit:
+    handler: src/lambda/http/getNextEdit.handler
+    events:
+      - http:
+          method: get
+          path: getnextedit
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:*
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_LINE}
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+
+
+  SubmitEditAndGetNext:
+    handler: src/lambda/http/submitEdit.handler
+    events:
+      - http:
+          method: post
+          path: edit
+          cors: true
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Submit an edited line
+            description: Submit an edited line
+            requestModels:
+              'application/json': SubmitLineRequest
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:*
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_EDIT}
+      - Effect: Allow
+        Action:
+          - dynamodb:*
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_LINE}
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+
+
+  # Mark an edit as rejected.  A moderator or admin would use this
+  # function.
+  UpdateEdit:
+    handler: src/lambda/http/updateEdit.handler
+    events:
+      - http:
+          method: patch
+          path: edit/{editId}
+          cors: true
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Update line edit item
+            description: Update line edit item
+            requestModels:
+              'application/json': UpdateLineEditRequest
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:*
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_EDIT}
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+
+  # Fully delete an edit record, in case a malicious user has
+  # submitted something truly unacceptable such as copyrighted
+  # material
+  DeleteEdit:
+    handler: src/lambda/http/deleteEdit.handler
+    events:
+      - http:
+          method: delete
+          path: edit/{editId}
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:*
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_EDIT}
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+
+
+  # This is currently for development purposes.
+  GetAllEdits:
+    handler: src/lambda/dev/getAllEdits.handler
+    events:
+      - http:
+          method: get
+          path: getalledits
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:*
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_EDIT}
+      - Effect: 'Allow' # xray permissions (required)
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+
+
+  # ----------------------------------------------------
+  # OTHER DEV FUNCTIONS
+
+  # A throwaway function for whatever temporary code is needed.
   TestHandler:
     handler: src/lambda/dev/testHandler.handler
     events:
@@ -396,9 +408,7 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - dynamodb:PutItem
-          - dynamodb:GetItem
-          - dynamodb:Query
+          - dynamodb:*
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TABLE_PAGE}
       - Effect: 'Allow' # xray permissions (required)
         Action:
@@ -406,15 +416,11 @@ functions:
           - xray:PutTelemetryRecords
         Resource:
           - '*'
-      - Effect: Allow
-        Action:
-          - SNS:Publish
-        Resource: arn:aws:sns:us-east-1:424780530116:tornado_warning
 
 
 
 custom:
-  textractDoneTopicName: textractDoneTopic-${self:provider.stage}
+  textractDoneTopicName: COC-TextractDoneTopic-${self:provider.stage}
 
   serverless-offline:
     port: 3003
@@ -529,6 +535,30 @@ resources:
         TopicName: ${self:custom.textractDoneTopicName}
 
 
+    TextractDoneRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: COC-TextractDoneRole-${self:provider.stage}
+        Path: /
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement: 
+            - Effect: Allow
+              Principal:
+                Service:
+                  - textract.amazonaws.com
+              Action: 
+                - sts:AssumeRole
+        Policies:
+          - PolicyName: COC-TextractDonePolicyName-${self:provider.stage}
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - sns:Publish
+                  Resource: ${self:provider.environment.TEXTRACT_DONE_TOPIC_ARN}
+
 
     # -----------------------------------------------------
 
@@ -570,7 +600,7 @@ resources:
 
     # -----------------------------------------------------
 
-    
+
 
     OcrOutputBucket:
       Type: AWS::S3::Bucket
@@ -609,8 +639,6 @@ resources:
 
 
     # -----------------------------------------------------
-
-    # S3_BUCKET_LINE_IMAGES: coc-line-images-424780530116-${self:provider.stage}
 
 
     LineImagesBucket:

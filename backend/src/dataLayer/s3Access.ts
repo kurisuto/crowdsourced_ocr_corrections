@@ -9,6 +9,7 @@ const logger = createLogger('todos')
 const pageUploadBucketName = process.env.S3_BUCKET_PAGE_UPLOAD
 const ocrOutputBucketName = process.env.S3_BUCKET_OCR_OUTPUT
 
+// const urlExpiration = parseInt(process.env.SIGNED_URL_EXPIRATION)
 const urlExpiration = process.env.SIGNED_URL_EXPIRATION
 
 
@@ -18,10 +19,11 @@ const s3 = new XAWS.S3({
 
 export function getUploadUrl(imageId: string) {
   logger.info('Data access layer is calling s3 to get a signed URL for uploading a file.')
+  
   return s3.getSignedUrl('putObject', {
     Bucket: pageUploadBucketName,
     Key: imageId,
-    Expires: urlExpiration
+    Expires: parseInt(urlExpiration)
   })
 }
 

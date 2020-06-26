@@ -7,7 +7,7 @@ import { cors } from 'middy/middlewares'
 import { seanMiddy } from '../../utils/seanMiddy'
 
 import { createLogger } from '../../utils/logger'
-// import { generateUploadUrl } from '../../businessLogic/todos';
+import { generateUploadUrl } from '../../businessLogic/pages';
 
 const logger = createLogger('todos')
 
@@ -19,8 +19,7 @@ export const handler = middy(
 
   logger.info(`Processing event ${JSON.stringify(event)}`)
 
-  // const uploadUrl = await generateUploadUrl(event.headers.userId)
-  const uploadUrl = 'Shucks'
+  const uploadUrl = await generateUploadUrl()
 
   return {
     statusCode: 200,
