@@ -305,7 +305,7 @@ functions:
             summary: Submit an edited line
             description: Submit an edited line
             requestModels:
-              'application/json': SubmitLineRequest
+              'application/json': SubmitEditRequest
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -332,12 +332,6 @@ functions:
           method: patch
           path: edit/{editId}
           cors: true
-          reqValidatorName: RequestBodyValidator
-          documentation:
-            summary: Update line edit item
-            description: Update line edit item
-            requestModels:
-              'application/json': UpdateLineEditRequest
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -440,12 +434,9 @@ custom:
         title: Udagram API
         description: Serverless application for images sharing
     models:
-      - name: SubmitLineRequest
+      - name: SubmitEditRequest
         contentType: application/json
-        schema: ${file(models/submit-line-request.json)}
-      - name: UpdateLineEditRequest
-        contentType: application/json
-        schema: ${file(models/update-line-edit-request.json)}
+        schema: ${file(models/submit-edit-request.json)}
 
 
 

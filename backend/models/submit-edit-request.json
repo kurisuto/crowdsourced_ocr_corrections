@@ -3,16 +3,16 @@
   "title": "group",
   "type": "object",
   "properties": {
-    "name": {
+    "lineId": {
       "type": "string"
     },
-    "dueDate": {
+    "correctedText": {
       "type": "string"
     }
   },
   "required": [
-    "name",
-    "dueDate"
+    "lineId",
+    "correctedText"
   ],
   "additionalProperties": false
 }
