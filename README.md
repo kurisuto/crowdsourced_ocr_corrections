@@ -139,6 +139,8 @@ which a scheduler might take into consideration:
 
 * A volunteer might be assigned a line but never submit it.  The scheduler needs to keep track of what has been assigned, but release it for reassignment after some timeout.
 
+* Textract provides confidence scores for the individual recognized words and lines.  The scheduler could incorporate this information into prioritizing lines.
+
 * The scheduler might occasionally rate the accuracy of a volunteer by assigning a line for which the correct answer is already known.
 
   * The scheduler might use this information e.g. to avoid assigning two weak volunteers to the same line.
@@ -160,7 +162,7 @@ I did not implement the part of the system which loads the OCRed text into
 a database for editing, or which crops the page images into individual lines.
 
 For demonstration and development purposes, I mocked up a small amount
-of data on my laptop using a hacked Python scripts.  I manually
+of data on my laptop using a hacked Python script.  I manually
 performed OCR using AWS Textract on a few scanned pages of *The Wizard
 of Oz*, a text for which the copyright has expired.  My Python script
 does two things:
@@ -176,11 +178,41 @@ script to randomly apply specific substitutions meant to resemble
 typical OCR errors (o -> c, d -> cl, etc.)
 
 
+## Future directions
+
+The system currently relies on editing the text data in a traditional
+editable text box in a web form.  This is fairly easy to implement as
+a proof-of-concept, but is not necessarily the only user interface
+approach to the general problem of crowdsourcing correction of OCR
+output.
+
+Textract does not provide an n-best list of recognition candidates for
+each word or line; and right off, I do not know whether any current
+OCR packages expose this information.  If it were available, though,
+it's possible to imagine a different sort of user interface where the
+user isn't *typing* the corrections, but rather is touching or
+clicking on one of several candidate outputs for an uncertain word.
+This general sort of approach--where the user is manipulating
+graphical elements rather than typing--could potentially lend itself
+to gamifying the user interface.
+
+One fairly complicated problem to grapple with is the fact that the
+OCR engine does not always analyze the page geometry correctly.  It
+might misidentify the bounding rectangles of letters, words, lines, or
+other page elements.  A full-fledged system would need some kind of
+interface to allow users to correct mistakes in this area.  However,
+exactly how to keep a record of these correction events poses some
+conceptual difficulties.
+
+
+
+
 ## Installation notes
 
 In addition to deploying the Serverless app with the usual **sls deploy** command, the following must be done to put the mock data into place:
 
-* The **loadfakelinedata** endpoint must be hit with an HTTP GET.  This causes the system to load mocked-up data (which ships with the system) into the Page table.
+* The **loadfakelinedata** endpoint must be hit with an HTTP GET.  This causes the system to load mocked-up data (which ships with the system) into the Line table.
 
-* The .png files must be copied from **mock_data/03_output_shredded_images** into the **line-images** s3 bucket.  This bucket is automatically created with the Serverless app is deployed.
+* The .png files must be manually copied from **mock_data/03_output_shredded_images** into the **cedit-line-images...** s3 bucket.  This bucket is automatically created with the Serverless app is deployed.
+
 
