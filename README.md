@@ -160,17 +160,20 @@ I did not implement the part of the system which loads the OCRed text into
 a database for editing, or which crops the page images into individual lines.
 
 For demonstration and development purposes, I mocked up a small amount
-of data on my laptop using some hacked Python scripts.  I manually
+of data on my laptop using a hacked Python scripts.  I manually
 performed OCR using AWS Textract on a few scanned pages of *The Wizard
-of Oz*, a text for which the copyright has expired.  One Python script
-seeded the database with the recognized text.  Another script used the
-bounding rectangles to shred the page images into individual lines,
-which I manually uploaded to s3.
+of Oz*, a text for which the copyright has expired.  My Python script
+does two things:
 
-Textract gives pretty accurate results.  For the sake of this mockup,
-I deliberately introduced fake OCR errors into the recognized text.  I
-hacked another Python script to randomly apply specific substitutions
-meant to resemble typical OCR errors (o -> c, d -> cl, etc.)
+* It extracts the recognized text from the OCR output and puts it into a form so that it can easily seed the Line table.
+
+* It shreds the scanned page images into many smaller images, one for each line of text.  The bounding rectangles are in the JSON files containing the OCR output.
+
+Textract gives pretty accurate results.  For the sake of giving the
+user some errors to correct in this mockup, I deliberately introduced
+fake OCR errors into the recognized text.  I hacked another Python
+script to randomly apply specific substitutions meant to resemble
+typical OCR errors (o -> c, d -> cl, etc.)
 
 
 ## Installation notes

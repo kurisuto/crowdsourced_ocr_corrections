@@ -2,11 +2,13 @@
 
 This part of the project isn't submitted as part of the Capstone.
 It's a hacked Python script which I ran on my laptop to generate
-mocked up stub data.
+mocked up stub data.  I've gone ahead and included both the script
+and the mock data here since the mock data needs to be loaded to
+DynamoDb and to s3 to allow the system demonstration to work.
 
 Here is what is in the directories:
 
-* **01_scans:** A few scanned pages from a paper copy of **The Wizard of Oz**, on which the copyright has expired.
+* **01_scans:** A few scanned pages from a paper copy of *The Wizard of Oz*, on which the copyright has expired.
 
 * **02_ocr_output:** Some of the scanned pages were run through AWS Textract.  This directory contains the JSON files containing the OCR output.
 
