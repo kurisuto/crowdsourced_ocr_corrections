@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { History } from 'history'
 import { Form, Button } from 'semantic-ui-react'
 import Auth from '../auth/Auth'
 import { getUploadUrl, uploadFile } from '../api/todos-api'
@@ -9,25 +10,21 @@ enum UploadState {
   UploadingFile,
 }
 
-interface EditTodoProps {
-  match: {
-    params: {
-      todoId: string
-    }
-  }
+interface UploadImageProps {
   auth: Auth
+  history: History  
 }
 
-interface EditTodoState {
+interface UploadImageState {
   file: any
   uploadState: UploadState
 }
 
-export class EditTodo extends React.PureComponent<
-  EditTodoProps,
-  EditTodoState
+export class UploadImage extends React.PureComponent<
+  UploadImageProps,
+  UploadImageState
 > {
-  state: EditTodoState = {
+  state: UploadImageState = {
     file: undefined,
     uploadState: UploadState.NoUpload
   }
@@ -51,13 +48,14 @@ export class EditTodo extends React.PureComponent<
       }
 
       this.setUploadState(UploadState.FetchingPresignedUrl)
-      // const uploadUrl = await getUploadUrl(this.props.auth.getIdToken(), this.props.match.params.todoId)
       const uploadUrl = await getUploadUrl(this.props.auth.getIdToken())
 
       this.setUploadState(UploadState.UploadingFile)
       await uploadFile(uploadUrl, this.state.file)
 
-      alert('File was uploaded!')
+      this.props.history.push(`/pages`)
+
+      // alert('File was uploaded!')
     } catch (e) {
       alert('Could not upload a file: ' + e.message)
     } finally {
@@ -74,7 +72,19 @@ export class EditTodo extends React.PureComponent<
   render() {
     return (
       <div>
-        <h1>Upload new image</h1>
+        <h1>Upload a scanned page</h1>
+
+	<p>This form allows you to upload a scanned page from a book.</p>
+
+	<p>When you upload a page, AWS Textract will automatically be performed on it, and the OCR output will be available for download as a JSON file within a minute or two.  (In a full implementation of this app, the text would loaded into the database and would become available for volunteers to edit.)</p>
+
+	<p>After you submit a page, you will be redirected to the page status page.  You&apos;ll see a row in the table with the status <b>performing_ocr</b>.  After a minute or two, when you refresh the page, you'll see a status of <b>completed</b></p>
+
+<br/>
+<br/>
+<hr/>
+<br/>
+<br/>
 
         <Form onSubmit={this.handleSubmit}>
           <Form.Field>
