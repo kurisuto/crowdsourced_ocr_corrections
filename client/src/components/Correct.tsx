@@ -16,6 +16,7 @@ import {
 import Auth from '../auth/Auth'
 
 import spinner from './spinner.gif';
+import gamify from './gamify.png';
 
 
 enum EditState {
@@ -133,11 +134,26 @@ export class Correct extends React.PureComponent<CorrectProps, CorrectState> {
       <div>
       <h1>Correct Text</h1>
 
-      <p>Edit the text to match the original, and then click Submit.</p>
-      <p>If the text is already correct, just click Submit</p>
+      <p>Edit the text to match the original, and then click Submit.<br/>
+      If the text is already correct, just click Submit.</p>
+      <br/>
+      <hr/>
       <br/>
 
+      <div className="corrections">
       {form}
+      </div>
+
+      <hr/>
+
+      <p>
+      <b>Not implemented:</b><br/> Volunteer progress can be gamified.  Following
+      is one initial concept.  The icons update each time the volunteer
+      submits an edit.
+      </p>
+
+	<Image src={gamify} wrapped />
+
 
       </div>
     )
@@ -147,19 +163,23 @@ export class Correct extends React.PureComponent<CorrectProps, CorrectState> {
   renderForm() {
     if (this.state.editState == EditState.NoEdit) {
       return(
-        <h1>No edit</h1>
+        <h1>Edit not available</h1>
       )
     }
 
     else if (this.state.editState == EditState.FetchingNextEdit) {
       return(
+	<div className="center_spinner">
 	<Image src={spinner} wrapped />
+	</div>
       )
     }
 
     else if (this.state.editState == EditState.SubmittingEditAndFetchingNextEdit) {
       return(
+	<div className="center_spinner">
 	<Image src={spinner} wrapped />
+	</div>
       )
     }
 
@@ -167,12 +187,14 @@ export class Correct extends React.PureComponent<CorrectProps, CorrectState> {
       return(
         <div>
 
+	<i>Original text:</i><br/>
 	<Image src={this.state.imageUrl} wrapped />
 
 	<br/>
 	<br/>
 	<br/>
 
+	<i>Your correction:</i>
           <Input
             action={{
               color: 'teal',

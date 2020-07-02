@@ -31,9 +31,13 @@
 }
 */
 
+body {
+    margin: 20px;
+}
+
 div.cedit {
-          background-color: lemonchiffon;
-          border-color: darkkhaki;
+    background-color: white;
+    padding-bottom: 20px;
 }
 
 div.navigate {
@@ -64,17 +68,47 @@ td.map {
   padding: 15px;
   width: 100px;
   text-align: center;
+  background-color: white;
+}
+
+td.mapSelected {
+  border: 1px solid black;
+  padding: 15px;
+  width: 100px;
+  text-align: center;
   background-color: lemonchiffon;
 }
 
 
 div.alpha {
-    background-color: lemonchiffon;
+    background-color: white;
 }
 
-div.beta {
-    background-color: #e00000;
-    height: 100px;
-    width: 100px;
+
+div.corrections {
+    height: 300px;
+    padding-top: 50px;
 }
+
+
+span.blue {
+    color: blue;
+}
+
+span.red {
+    color: red;
+}
+
+
+div.login {
+    text-align: center;
+    padding-top: 100px;
+}
+
+
+
+div.center_spinner {
+    text-align: center;
+}
+
 

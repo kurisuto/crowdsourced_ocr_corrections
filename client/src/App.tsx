@@ -19,6 +19,7 @@ import { Pages } from './components/Pages'
 
 import logo from './logo_small_120.png';
 
+import './App.css'
 
 
 
@@ -32,6 +33,7 @@ export interface AppProps {
 export interface AppState {}
 
 export default class App extends Component<AppProps, AppState> {
+
   constructor(props: AppProps) {
     super(props)
 
@@ -47,6 +49,7 @@ export default class App extends Component<AppProps, AppState> {
     this.props.auth.logout()
   }
 
+
   render() {
     return (
       <div className="alpha">
@@ -56,9 +59,6 @@ export default class App extends Component<AppProps, AppState> {
 
                   {this.generateCurrentPage()}
                 </Router>
-
-		<div className="beta">
-		</div>
 
       </div>
     )
@@ -81,6 +81,32 @@ export default class App extends Component<AppProps, AppState> {
 
 
   generateHeader() {
+
+  // React probably has some elegant component for hilighting
+  // the control for the current page, but I'm just going to hack it.
+
+    const location = window.location.pathname
+
+    var styleHome = "map"
+    var styleCorrect = "map"
+    var styleUpload = "map"
+    var stylePages = "map"
+
+    if (this.props.auth.isAuthenticated()) {
+      if (location == "/") {
+        styleHome = "mapSelected"
+      }
+      if (location == "/correct") {
+        styleCorrect = "mapSelected"
+      }
+      if (location == "/upload_image") {
+        styleUpload = "mapSelected"
+      }
+      if (location == "/pages") {
+        stylePages = "mapSelected"
+      }
+    }
+
     return(
 	<div className="cedit">
           <img src={logo} alt="logo" />
@@ -89,16 +115,16 @@ export default class App extends Component<AppProps, AppState> {
           <table className="map">
           <tbody>
           <tr>
-            <td className="map">
+            <td className={styleHome}>
               <Link to="/">Home</Link>
             </td>
-            <td className="map">
+            <td className={styleCorrect}>
               <Link to="/correct">Correct Text</Link>
             </td>
-            <td className="map">
+            <td className={styleUpload}>
               <Link to="/upload_image">Upload Image</Link>
             </td>
-            <td className="map">
+            <td className={stylePages}>
               <Link to="/pages">Pages</Link>
             </td>
           </tr>

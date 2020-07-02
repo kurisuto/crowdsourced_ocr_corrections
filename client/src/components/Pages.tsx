@@ -17,6 +17,7 @@ import Auth from '../auth/Auth'
 
 import { getPages } from '../api/todos-api'
 import { Page } from '../types/Page'
+import spinner from './spinner.gif';
 
 
 interface PagesProps {
@@ -28,6 +29,18 @@ interface PagesState {
   pages: Page[]
   loadingPages: boolean
 }
+
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+function compare(a: Page, b: Page) {
+  if (a.ocrStartedAt > b.ocrStartedAt) { return 1; }
+  if (a.ocrStartedAt < b.ocrStartedAt) { return -1; }
+  return 0;
+}
+
 
 export class Pages extends React.PureComponent<PagesProps, PagesState> {
   state: PagesState = {
@@ -49,6 +62,7 @@ export class Pages extends React.PureComponent<PagesProps, PagesState> {
   }
 
 
+
   renderHeader() {
     return(
             <tr key="heading">
@@ -66,58 +80,119 @@ export class Pages extends React.PureComponent<PagesProps, PagesState> {
 
   renderRows = () => {
       var pages = this.state.pages
+      pages = pages.sort(compare)
       console.log(pages)
       var pageslist = pages.map(function(page, index){
           const url = page.ocrOutputUrl
           console.log(url)
+
+	  var statusCell = (
+	      <td className="pages"><span className='blue'>{page.status}</span></td>
+	  )
+	  if (page.status == "performing_ocr") {
+	    statusCell = (
+	      <td className="pages"><span className='red'>{page.status}</span></td>
+  	    )
+
+	  }
+
           return (<tr key={ index }>
-                  <td className="pages">{index}</td>
+                  <td className="pages">{index+1}</td>
                   <td className="pages">{page.pageId}</td>
-                  <td className="pages">{page.status}</td>
+                  {statusCell}
                   <td className="pages">{page.ocrStartedAt}</td>
                   <td className="pages">{page.ocrCompletedAt}</td>
                   <td className="pages">{page.imageFilename}</td>
-                  <td className="pages">{page.ocrOutputUrl}</td>
+                  <td className="pages"><a href='{url}'>Link</a></td>
                   </tr>)
               })
       return pageslist
   }
 
 
+  reloadPages = async (event: React.SyntheticEvent) => {
+    event.preventDefault()
+
+    try {
+      this.setState({
+          pages: [],
+	  loadingPages: true
+      })
+
+      const pages = await getPages(this.props.auth.getIdToken())
+
+      this.setState({
+        pages,
+        loadingPages: false
+      })
+    } catch (e) {
+      alert(`Failed to fetch pages: ${e.message}`)
+    }
+  }
+  
+
+  renderTable() {
+    if (this.state.loadingPages) {
+       return (
+          <div className="center_spinner">
+	  <br/>
+	  <br/>
+	  <br/>
+	  <br/>
+	  <br/>
+          <Image src={spinner} wrapped />
+	  </div>
+       )
+    }
+    else {
+       const theadMarkup = this.renderHeader();
+       const tbodyMarkup = this.renderRows();
+
+       return (
+         <div>
+	 <form onSubmit={this.reloadPages}>
+	  <input type="submit" value="Refresh" />
+	 </form>
+	 <br/>
+
+	 <table className="pages">
+           <thead>{theadMarkup}</thead>
+           <thead>{tbodyMarkup}</thead>
+         </table>
+
+	 </div>
+       )
+    }
+  }
+
 
   render() {
 
-    const theadMarkup = this.renderHeader();
-    const tbodyMarkup = this.renderRows();
-
+    const pageTable = this.renderTable()
 
     return (
       <div>
       <h1>Pages</h1>
-	
 
-         <p>
-        This table is for development/demonstration purposes.
-        </p>
+        <p><i>If you just got here because you uploaded a page, please
+        click <b>Refresh</b> every few seconds to see the progress.</i></p>
 
         <p>
-        When you upload a page image, a new row will appear in the table with the
-        status <b>performing_ocr</b>, indicating that the page has been submitted
-        to AWS Textract.  After 10-20 seconds or so, reloading the page should show
-        status <b>completed</b>, and you can follow the link to see the JSON output
-        from AWS Textract.
-        </p>
+	Most of this information wouldn't really be exposed to volunteer
+	users.  It's here to show how things work.  In a full implementation,
+	the OCR output would be loaded into the database to make it available
+	for volunteer corrections.
+	</p>
 
         <p>
-            Sorry you have to manually copy and paste that URL!  I&apos;n totally new
+            Sorry you have to manually copy and paste that URL!  I&apos;m totally new
         to React and couldn&apos;t get the framework to stop messing with the URL.
         </p>
-        
-      <table className="pages">
-        <thead>{theadMarkup}</thead>
-        <thead>{tbodyMarkup}</thead>
-      </table>
 
+	<br/>
+	<br/>
+        
+        {pageTable}
 
       </div>
     )

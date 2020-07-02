@@ -76,15 +76,17 @@ export class UploadImage extends React.PureComponent<
 
 	<p>This form allows you to upload a scanned page from a book.</p>
 
-	<p>When you upload a page, AWS Textract will automatically be performed on it, and the OCR output will be available for download as a JSON file within a minute or two.  (In a full implementation of this app, the text would loaded into the database and would become available for volunteers to edit.)</p>
+	<p>The GitHub repository includes some sample pages for you upload.<br/>
+	Example: <b>mock_data/01_scans/wizard_of_oz_176.jpg</b></p>
 
-	<p>After you submit a page, you will be redirected to the page status page.  You&apos;ll see a row in the table with the status <b>performing_ocr</b>.  After a minute or two, when you refresh the page, you'll see a status of <b>completed</b></p>
+	<p>The upload automatically kicks off asynchronous OCR.  You'll be redirected
+	to a status page so that you can monitor its progress.</p>
 
-<br/>
-<br/>
-<hr/>
-<br/>
-<br/>
+	<br/>
+	<br/>
+	<hr/>
+	<br/>
+	<br/>
 
         <Form onSubmit={this.handleSubmit}>
           <Form.Field>
