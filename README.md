@@ -217,6 +217,10 @@ In addition to deploying the Serverless app with the usual **sls deploy** comman
 
 * The .png files must be manually copied from **mock_data/03_output_shredded_images** into the **cedit-line-images...** s3 bucket.  This bucket is automatically created with the Serverless app is deployed.
 
+The backend is up and running at the time this project is submitted, so the Udacity
+evaluator doesn't need to do these steps.
+
+
 ### Frontend
 
 Run it the usual way:
@@ -226,4 +230,6 @@ Run it the usual way:
 * npm install
 
 * npm run
+
+I request that the Udacity evaluator please run these commands to run the frontend.
 
