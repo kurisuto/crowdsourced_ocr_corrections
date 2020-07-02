@@ -103,7 +103,7 @@ export class Pages extends React.PureComponent<PagesProps, PagesState> {
                   <td className="pages">{page.ocrStartedAt}</td>
                   <td className="pages">{page.ocrCompletedAt}</td>
                   <td className="pages">{page.imageFilename}</td>
-                  <td className="pages"><a href='{url}'>Link</a></td>
+                  <td className="pages"><a href={url}>Link</a></td>
                   </tr>)
               })
       return pageslist
@@ -183,11 +183,6 @@ export class Pages extends React.PureComponent<PagesProps, PagesState> {
 	the OCR output would be loaded into the database to make it available
 	for volunteer corrections.
 	</p>
-
-        <p>
-            Sorry you have to manually copy and paste that URL!  I&apos;m totally new
-        to React and couldn&apos;t get the framework to stop messing with the URL.
-        </p>
 
 	<br/>
 	<br/>

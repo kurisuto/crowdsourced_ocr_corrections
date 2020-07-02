@@ -32,7 +32,8 @@ export class Home extends React.PureComponent<HomeProps, HomeState> {
 
   render() {
     return (
-      <div>
+      <div className="center_home">
+      <div className="center_home2">
         <h1>Welcome!</h1>
 	
 	<p>This app allows volunteers to correct the OCRed text of copyright-expired books, one line at a time.</p>
@@ -50,6 +51,7 @@ export class Home extends React.PureComponent<HomeProps, HomeState> {
 	</ul>
 
 
+      </div>
       </div>
     )
   }

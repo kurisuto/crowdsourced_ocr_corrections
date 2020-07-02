@@ -112,3 +112,15 @@ div.center_spinner {
 }
 
 
+div.center_home {
+    text-align: center;
+}
+
+div.center_home2 {
+    text-align: left;
+    display: inline-block;
+    width: 800px;
+}
+
+
+

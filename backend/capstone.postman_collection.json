@@ -446,13 +446,13 @@
 	],
 	"variable": [
 		{
-			"id": "36975e9f-1469-4c84-b9ea-164de0bbd2b0",
+			"id": "07e4cd90-2d89-43fd-a86c-c18144034501",
 			"key": "apiId",
 			"value": "",
 			"type": "string"
 		},
 		{
-			"id": "7b5d1d17-c841-4053-b84b-e15b34fd89d9",
+			"id": "a8a59526-2afa-4bdd-9309-20a7370e134e",
 			"key": "authToken",
 			"value": "",
 			"type": "string"

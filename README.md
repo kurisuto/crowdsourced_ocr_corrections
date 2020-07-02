@@ -209,10 +209,21 @@ conceptual difficulties.
 
 ## Installation notes
 
+### Backend
+
 In addition to deploying the Serverless app with the usual **sls deploy** command, the following must be done to put the mock data into place:
 
 * The **loadfakelinedata** endpoint must be hit with an HTTP GET.  This causes the system to load mocked-up data (which ships with the system) into the Line table.
 
 * The .png files must be manually copied from **mock_data/03_output_shredded_images** into the **cedit-line-images...** s3 bucket.  This bucket is automatically created with the Serverless app is deployed.
 
+### Frontend
+
+Run it the usual way:
+
+* cd client
+
+* npm install
+
+* npm run
 
